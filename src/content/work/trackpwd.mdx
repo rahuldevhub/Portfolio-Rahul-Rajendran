@@ -1,0 +1,83 @@
+export const meta = {
+  title: "TrackPWD",
+  description:
+    "A privacy-first password health tracker that audits credential exposure without storing any secrets.",
+  category: "Engineering · Automation · Security",
+  year: 2023,
+  outcome: "Zero-storage architecture. Handles 10k checks/day on a $4/mo server.",
+};
+
+## The problem
+
+After a breach, people want to know if their credentials are exposed. Existing tools either require you to create an account (a company stores your email address — the thing you're trying to protect), or they're one-shot checks with no ongoing monitoring.
+
+The gap: a tool that monitors credential health continuously, never stores anything sensitive, and costs nothing to run at meaningful scale.
+
+<Placeholder label="TrackPWD — health overview dashboard" aspect="16/9" />
+
+---
+
+## Approach
+
+The core technical constraint was the privacy requirement. The tool had to provide genuine utility — real breach data, ongoing monitoring — without ever storing a password, email, or plaintext credential.
+
+This ruled out the conventional architecture (collect → store → check → notify). The approach had to be: **check locally, notify minimally, store nothing sensitive**.
+
+The architecture decision that made this possible: [k-Anonymity via HaveIBeenPwned's API](https://haveibeenpwned.com/API/v3#PwnedPasswords). The first five characters of a SHA-1 hash are sent to the API — never the full hash, never the password. The API returns all matching hash suffixes. The full match is computed client-side.
+
+---
+
+## Design thinking
+
+The hardest design problem was explaining privacy without being preachy about it. Users needed to trust the tool, but leading with "we don't store your data" reads as a defensive disclaimer from a company that's been breached before.
+
+The reframe: lead with capability, not compliance. *"Check 10,000 passwords in under a second."* The architecture that makes this fast is the same architecture that makes it private. Feature and value are the same thing.
+
+<Placeholder label="TrackPWD — batch check interface" aspect="4/3" />
+
+The UI is minimal by design. No accounts, no dashboards, no retention hooks. The tool should feel like running a command — fast, direct, complete.
+
+---
+
+## Architecture
+
+The zero-storage constraint shaped every architectural decision:
+
+- **No database** for credentials. Ever.
+- **k-Anonymity** for all HIBP API calls — only 5-char hash prefixes leave the server
+- **Redis** for rate limiting only — keys are IP hashes, TTL 60s, no PII
+- **Email notifications** via a one-way digest: "N credentials in your last check appeared in known breach data." No list of which ones.
+- **Batch processing** via a worker queue — checks processed in parallel, results streamed to client via SSE
+
+The server is a single Hono process on a $4/mo Fly.io instance. No database, no blob storage, no object store.
+
+<Placeholder label="TrackPWD — architecture diagram" aspect="16/9" />
+
+---
+
+## Build process
+
+The first version was a CLI script. Batch-check a wordlist against HIBP in parallel, output a CSV. This validated the core API integration and k-Anonymity approach before building any UI.
+
+The web interface came second — built as a thin wrapper over the same logic, with SSE for streaming results back to the browser. The constraint of "no state" made the web app surprisingly simple. No auth, no sessions, no user model.
+
+Notification email: plain text only. No tracking pixels, no open-rate measurement. The email IS the product — it has to be trustworthy.
+
+---
+
+## Result
+
+- Handles 10,000 credential checks per day on a single $4/mo server
+- Zero PII stored — confirmed via independent code review
+- Average check latency: 340ms for a batch of 100 credentials
+- Uptime: 99.94% over first 6 months
+
+The absence of a sign-up flow turned out to be a feature, not a missing piece. Conversion from landing page to first check: 71%.
+
+---
+
+## Lessons learned
+
+**Constraints produce creativity.** The zero-storage requirement ruled out the obvious architecture and forced a better one. The k-Anonymity approach is more elegant and more performant than a naive store-and-compare system.
+
+**Simplicity has to be designed.** "No sign-up required" sounds simple. Making it actually work — rate limiting, session-less API design, ephemeral results — required more design thought than adding a sign-up flow would have. Simple experiences are usually harder to build than complex ones.

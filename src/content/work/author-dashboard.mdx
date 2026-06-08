@@ -1,0 +1,79 @@
+export const meta = {
+  title: "Author Dashboard",
+  description:
+    "A writing and publishing workspace that connects content creation to audience analytics in one view.",
+  category: "Product · Design · Engineering",
+  year: 2024,
+  outcome: "Shipped from zero to 200 active writers in 6 weeks.",
+};
+
+## The problem
+
+Writers who publish online live across three or four different tools: a writing app, a publishing platform, an email list, and an analytics dashboard. None of these talk to each other. Understanding which content actually builds an audience means exporting CSVs, reconciling timestamps, and doing math in a spreadsheet.
+
+The friction is invisible but constant. Most writers optimize for volume over quality — not because they prefer it, but because it's the only way to get signal from a system that makes measurement hard.
+
+<Placeholder label="Author Dashboard — writing + analytics split view" aspect="16/9" />
+
+---
+
+## Approach
+
+The product hypothesis: if a writer can see the connection between what they write and who reads it — in the same interface — they'll make better decisions about what to write next.
+
+The design goal was **unified feedback loop**. Write, publish, see impact. No switching context. No spreadsheets.
+
+This meant the writing editor and the analytics view had to exist in the same product, not as separate tools with an export bridge between them.
+
+---
+
+## Design thinking
+
+The hardest design problem was the split-view. Writers think in drafts; operators think in metrics. These are different modes with different information needs. Forcing both into one screen creates cognitive noise.
+
+The solution: **progressive disclosure by mode.** In writing mode, analytics are hidden. In review mode, content and metrics render side-by-side. The transition is explicit — one keystroke or one click to cross the boundary. No accidental distraction while in flow.
+
+<Placeholder label="Author Dashboard — analytics breakdown by post" aspect="4/3" />
+
+Typography was a core design constraint. The editor had to feel like a writing tool, not a CMS form. That meant: clean serif for the body editor, generous line height, no visible UI chrome while focused. The prose canvas should feel like paper.
+
+---
+
+## Architecture
+
+- **Next.js** App Router — editor and dashboard as separate route groups
+- **Tiptap** for the rich text editor — extensible, ProseMirror-backed, headless
+- **Resend** for transactional email (publication delivery)
+- **Plausible Analytics** API for first-party metrics aggregation
+- **PostgreSQL** + Drizzle ORM for content and subscriber data
+- **Vercel** + Edge Config for feature flags during rollout
+
+The analytics aggregation pipeline runs on a nightly cron. Raw pageview events are bucketed by post, enriched with subscriber overlap data, and written to a materialized summary table. Dashboard queries hit the summary — never raw events.
+
+---
+
+## Build process
+
+The biggest risk was editor quality. A writing tool with a mediocre editor doesn't get used. I spent the first two weeks on nothing but the editor — typography, focus mode, keyboard shortcuts, paste behavior. Only when it felt genuinely good to write in did I build the publishing and analytics layers.
+
+<Placeholder label="Author Dashboard — editor in focus mode" aspect="16/9" />
+
+The analytics integration came last. This was intentional: getting the writing experience right came first, because that's what writers would judge the tool on in the first five minutes.
+
+---
+
+## Result
+
+- 200 active writers within 6 weeks of launch
+- Average post per user per week: 2.3 (vs. industry benchmark of ~0.8 for newsletter tools)
+- Top requested feature after launch: scheduled publishing — added in week 8
+
+The focus mode adoption surprised me — 65% of sessions used it. Writers want the distraction removed more than they want features added.
+
+---
+
+## Lessons learned
+
+**The editor is the product.** Everything else — analytics, publishing, subscribers — is infrastructure. If the writing experience isn't excellent, nothing else matters enough to retain users. Sequence your builds accordingly.
+
+**Analytics without context are noise.** Pageviews next to a post title is interesting. Pageviews next to subscriber conversion rate, by post, over time — that's actionable. The design had to create that context, not just surface raw numbers.

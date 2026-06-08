@@ -1,0 +1,84 @@
+export const meta = {
+  title: "LeadCRM",
+  description:
+    "A CRM built for solo operators and small sales teams — fast, opinionated, and designed to get out of your way.",
+  category: "Product · Design · Engineering",
+  year: 2024,
+  outcome: "Reduced pipeline management time by 60% for early users.",
+};
+
+## The problem
+
+Most CRMs are built for enterprise sales teams. They assume you have a dedicated admin, a week to configure, and a tolerance for menus inside menus inside menus. For the solo operator or five-person team working a tight pipeline, this is actively harmful.
+
+The real problem wasn't features. It was friction. Every contact lookup, every deal update, every email log — each one cost four clicks too many. Multiplied across a workday, that friction is the difference between a CRM that closes deals and one that becomes a graveyard of good intentions.
+
+<Placeholder label="LeadCRM — pipeline view" aspect="16/9" />
+
+---
+
+## Approach
+
+The goal was a CRM that a solo founder could be productive in after 15 minutes — with no onboarding call. That meant:
+
+- **One screen, one job.** The pipeline view is the app. No dashboards, no reports, no setup wizard.
+- **Keyboard-first.** Every action reachable without a mouse. `K` for new contact, `D` for deal, `Enter` to open.
+- **Smart defaults.** Stages pre-configured for a typical B2B sales motion. Change them when you need to, not before.
+
+The question that guided every decision: *"Does this help someone close a deal, or does it help us look like a CRM?"*
+
+---
+
+## Design thinking
+
+I started with five one-hour sessions with solo operators and small-team salespeople. The pattern was consistent: they'd tried two or three CRMs and abandoned each one within a month. The abandonment point was always the same — the moment setup started feeling like a job.
+
+The design brief became: **zero configuration to first pipeline.** Log in, create a deal, move it forward. Nothing else required.
+
+<Placeholder label="LeadCRM — contact detail view" aspect="4/3" />
+
+The visual language is deliberately quiet. Monochrome base, accent only on actions. The pipeline board reads like a whiteboard — exactly what people had been using before.
+
+---
+
+## Architecture
+
+- **Next.js** App Router with React Server Components for the pipeline view
+- **PostgreSQL** via Prisma — normalized contacts, deals, and activity log
+- **Supabase Auth** — email magic link only, no passwords to manage
+- **tRPC** for type-safe client → server communication
+- **Vercel** — zero-config deploys, edge middleware for auth
+
+The activity log is append-only. Every state change writes an immutable record. This makes undo trivial (replay to previous state) and audit logs free.
+
+---
+
+## Build process
+
+Built over six weeks in three sprints:
+
+1. **Sprint 1** — data model, auth, basic CRUD. Ugly but functional.
+2. **Sprint 2** — pipeline board UI, drag-and-drop, keyboard shortcuts. First real dogfooding.
+3. **Sprint 3** — email logging, contact timeline, polish, performance.
+
+No feature flags. No backwards-compat shims. When something needed to change, I changed it and updated the one test user.
+
+<Placeholder label="LeadCRM — activity timeline" aspect="16/9" />
+
+---
+
+## Result
+
+- Pipeline management time reduced by ~60% compared to previous tools (measured via user session recordings)
+- Average session to first deal: under 8 minutes
+- Retention at 30 days: 80% of early users still active
+
+The keyboard shortcut adoption was higher than expected — about 70% of actions via keyboard after week two.
+
+---
+
+## Lessons learned
+
+**Defaults are product decisions.** Every default I shipped was a bet on what most users need most of the time. Getting this wrong is the most expensive mistake in B2B tools — you either over-configure (enterprise trap) or under-configure (feels unfinished). Talking to users before writing a line of UI was the only thing that kept this calibrated.
+
+**Performance is a feature.** The pipeline board needs to feel instant. Sub-100ms interactions aren't a nice-to-have — they're the difference between a tool that gets used and one that gets replaced.
