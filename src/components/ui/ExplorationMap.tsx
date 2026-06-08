@@ -89,7 +89,7 @@ const placed = computePlaced();
 // LABEL_OFFSET is in SVG user units — how far from node center the text sits
 const LABEL_OFFSET = 26;
 
-function svgLabelAttrs(node: PlacedNode): { x: number; y: number; textAnchor: string } {
+function svgLabelAttrs(node: PlacedNode): { x: number; y: number; textAnchor: "start" | "middle" | "end" } {
   switch (node.labelDir) {
     case "above": return { x: node.svgX,                  y: node.svgY - LABEL_OFFSET, textAnchor: "middle" };
     case "right": return { x: node.svgX + LABEL_OFFSET,   y: node.svgY,               textAnchor: "start"  };
