@@ -352,7 +352,7 @@ export function Story() {
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               >
                 {/* Mobile timeline rail — dot + connecting line */}
-                <div aria-hidden="true" className="lg:hidden" style={{ position: "absolute", left: 1, top: "0.3rem", bottom: i < TOTAL - 1 ? "-4rem" : "auto", width: 16, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div aria-hidden="true" className="flex flex-col items-center lg:hidden" style={{ position: "absolute", left: 1, top: "0.3rem", bottom: i < TOTAL - 1 ? "-4rem" : "auto", width: 16 }}>
                   <span style={{ width: 15, height: 15, borderRadius: "50%", flexShrink: 0, zIndex: 1, background: i <= active ? s.accent : "var(--surface)", border: `2px solid ${i <= active ? s.accent : "var(--border)"}`, boxShadow: i === active ? `0 0 0 4px ${s.accent}24` : "none", transition: "all 0.4s ease" }} />
                   {i < TOTAL - 1 && <span style={{ flex: 1, width: 2, marginTop: 3, background: i < active ? s.accent : "var(--border)", opacity: i < active ? 0.5 : 1, transition: "all 0.4s ease" }} />}
                 </div>
@@ -392,10 +392,12 @@ export function Story() {
                 </h3>
 
                 {/* Mobile expand affordance */}
-                <div className="lg:hidden" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.7rem", marginTop: "0.9rem", marginBottom: isOpen ? "1.5rem" : "0.2rem" }}>
+                <div className="flex flex-wrap items-center" style={{ gap: "0.7rem", marginTop: "0.9rem", marginBottom: isOpen ? "1.5rem" : "0.2rem" }}>
                   <span style={{ fontFamily: "var(--font-display)", fontSize: "0.72rem", fontWeight: 700, color: s.accent, padding: "0.3em 0.75em", borderRadius: "999px", background: `${s.accent}14`, border: `1px solid ${s.accent}2E` }}>
                     +{s.skills.length} Skills
                   </span>
+                  {/* Toggle is a mobile-only accordion control — skills are always expanded on desktop */}
+                  <span className="contents lg:hidden">
                   {isOpen ? (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontFamily: "var(--font-mono)", fontSize: "0.64rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)" }}>
                       Collapse <span style={{ display: "inline-block", transform: "rotate(180deg)" }}>▾</span>
@@ -416,6 +418,7 @@ export function Story() {
                       <span aria-hidden="true">→</span>
                     </motion.span>
                   )}
+                  </span>
                 </div>
                 </div>{/* /tappable header */}
 
@@ -463,7 +466,7 @@ export function Story() {
                 {i === revealed - 1 && i < TOTAL - 1 && (
                   <button
                     type="button"
-                    className="lg:hidden"
+                    className="inline-flex items-center"
                     onClick={() => {
                       setRevealed(i + 2);
                       setMobileOpen(i + 1);
@@ -473,7 +476,7 @@ export function Story() {
                       });
                     }}
                     style={{
-                      marginTop: "1.6rem", display: "inline-flex", alignItems: "center", gap: "0.5rem",
+                      marginTop: "1.6rem", gap: "0.5rem",
                       padding: "0.7rem 1.2rem", borderRadius: "999px", cursor: "pointer",
                       background: s.accent, color: "#FFFFFF", border: "none",
                       fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.85rem",

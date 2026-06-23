@@ -67,7 +67,8 @@ export const reachReasons: { id: string; icon: ReasonIcon; title: string; accent
 ];
 
 export const contactMeta = {
-  availability: "Currently available for new opportunities",
+  availability: "Open to opportunities",
   availabilityNote: "Let's create something awesome!",
-  location: "Based in Kerala, India",
+  location: "Building from Erode, India",
+  signoff: "Freelance • Full-Time • Collaborations",
 };

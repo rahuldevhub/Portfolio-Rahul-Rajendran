@@ -23,15 +23,15 @@ export interface WorkItem {
 
 export const work: WorkItem[] = [
   {
-    slug: "lead-crm",
-    title: "LeadCRM",
+    slug: "infinity-gst",
+    title: "LedgerFlow",
     description:
-      "A CRM built for solo operators and small sales teams — fast, opinionated, and designed to get out of your way.",
+      "A business operating system for a real Indian company — quotations, invoicing, expenses, cash flow, and GST filing connected as one financial lifecycle.",
     category: "Product · Design · Engineering",
-    year: 2024,
-    thumbnailLabel: "LeadCRM — product screenshot",
+    year: 2025,
+    thumbnailLabel: "LedgerFlow — dashboard screenshot",
     thumbnailAspect: "16/9",
-    outcome: "Reduced pipeline management time by 60% for early users.",
+    outcome: "One source of truth — from the first quotation sent to the final GST return filed.",
     featured: true,
   },
   {

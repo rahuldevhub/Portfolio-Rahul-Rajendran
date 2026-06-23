@@ -29,12 +29,6 @@ const Clock = ({ s = 16, c = "currentColor" }: { s?: number; c?: string }) => (
 const Brain = ({ s = 16, c = "currentColor" }: { s?: number; c?: string }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 4a3 3 0 00-3 3 3 3 0 00-1 5.8A3 3 0 008 17a3 3 0 003-3V6a2 2 0 00-2-2zM15 4a3 3 0 013 3 3 3 0 011 5.8A3 3 0 0116 17a3 3 0 01-3-3V6a2 2 0 012-2z" stroke={c} strokeWidth="1.5" strokeLinejoin="round" /></svg>
 );
-const Trend = ({ s = 16, c = "currentColor" }: { s?: number; c?: string }) => (
-  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /><path d="M17 8h4v4" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-);
-const Bulb = ({ s = 16, c = "currentColor" }: { s?: number; c?: string }) => (
-  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.5.4.5.6.5 1.1v1h6v-1c0-.5 0-.7.5-1.1A6 6 0 0012 3z" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-);
 const Close = ({ s = 12, c = "currentColor" }: { s?: number; c?: string }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke={c} strokeWidth="1.8" strokeLinecap="round" /></svg>
 );
@@ -67,7 +61,7 @@ export function Lab() {
   return (
     <Section id="lab" bg="surface">
       <Container>
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.72fr_1fr] lg:gap-14 lg:items-center">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.46fr_1fr] lg:gap-14 lg:items-center">
 
           {/* ── LEFT: intro ──────────────────────────────────────────────── */}
           <motion.div
@@ -143,7 +137,9 @@ export function Lab() {
                       background: on ? "#FFFFFF" : "transparent",
                       border: on ? "1px solid var(--border)" : "1px solid transparent",
                       borderBottom: on ? "1px solid #FFFFFF" : "1px solid transparent",
+                      opacity: on ? 1 : 0.6,
                       cursor: "pointer",
+                      transition: "opacity 0.25s ease",
                     }}>
                     {/* live-pulse dot on the active tab */}
                     <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0 }}>
@@ -156,7 +152,7 @@ export function Lab() {
                     <span style={{ fontFamily: "var(--font-display)", fontSize: "0.8rem", fontWeight: on ? 600 : 500, color: on ? "var(--text)" : "var(--text-muted)", whiteSpace: "nowrap" }}>{t.name}</span>
                     <span style={{ color: "var(--text-muted)", opacity: on ? 0.7 : 0.4, display: "flex" }}><Close s={11} c="currentColor" /></span>
                     {on && (
-                      <motion.span layoutId="lab-tab-underline" style={{ position: "absolute", left: "0.7rem", right: "0.7rem", bottom: -1, height: 2, borderRadius: "2px", background: "var(--accent)" }} />
+                      <motion.span layoutId="lab-tab-underline" style={{ position: "absolute", left: "0.7rem", right: "0.7rem", bottom: -1, height: 2, borderRadius: "2px", background: t.accent }} />
                     )}
                   </motion.button>
                 );
@@ -164,41 +160,43 @@ export function Lab() {
               <button type="button" aria-label="More tabs" style={{ flexShrink: 0, marginBottom: "0.5rem", width: 28, height: 28, borderRadius: "8px", border: "none", background: "transparent", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem" }}>+</button>
             </div>
 
-            {/* Content area */}
-            <div className="flex flex-col gap-4 p-5 lg:flex-row" style={{ background: "#FFFFFF" }}>
-              {/* Active tab card */}
+            {/* Content area — full-width browser page (no sidebar) */}
+            <div className="p-5 lg:p-6" style={{ background: "#FFFFFF" }}>
               <motion.div
                 key={active.id}
-                initial={!prefersReduced ? { opacity: 0, x: 16 } : false}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                style={{ flex: 1, minWidth: 0, padding: "1.5rem", borderRadius: "16px", border: "1px solid var(--border)", background: "#FFFFFF" }}
+                initial={!prefersReduced ? { opacity: 0, y: 10 } : false}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                style={{ padding: "1.4rem 1.6rem", borderRadius: "16px", border: `1px solid ${active.accent}22`, background: `linear-gradient(150deg, ${active.accent}10 0%, #FFFFFF 46%)` }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                  <span style={{ display: "inline-block", fontFamily: "var(--font-display)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: active.accent, padding: "0.3em 0.7em", borderRadius: "999px", background: `${active.accent}16`, border: `1px solid ${active.accent}2E` }}>
-                    {active.status}
-                  </span>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontFamily: "var(--font-mono)", fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#EF4444" }}>
-                    <span style={{ position: "relative", width: 6, height: 6 }}>
-                      <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#EF4444" }} />
-                      {!prefersReduced && (
-                        <motion.span aria-hidden="true" animate={{ scale: [1, 2.4], opacity: [0.6, 0] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }} style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#EF4444" }} />
-                      )}
+                {/* header: status + live · last touched */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", marginBottom: "0.9rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ display: "inline-block", fontFamily: "var(--font-display)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: active.accent, padding: "0.3em 0.7em", borderRadius: "999px", background: `${active.accent}16`, border: `1px solid ${active.accent}2E` }}>
+                      {active.status}
                     </span>
-                    Live
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontFamily: "var(--font-mono)", fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#EF4444" }}>
+                      <span style={{ position: "relative", width: 6, height: 6 }}>
+                        <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#EF4444" }} />
+                        {!prefersReduced && (
+                          <motion.span aria-hidden="true" animate={{ scale: [1, 2.4], opacity: [0.6, 0] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }} style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#EF4444" }} />
+                        )}
+                      </span>
+                      Live
+                    </span>
+                  </div>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--text-muted)" }}>
+                    <Clock s={13} c="currentColor" /> Last touched · {active.updated}
                   </span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.7rem", marginBottom: "1rem" }}>
+                {/* title */}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.7rem", marginBottom: "0.6rem" }}>
                   <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.7rem", color: "var(--text)", letterSpacing: "-0.02em" }}>{active.name}</h3>
                   <span style={{ width: 30, height: 30, borderRadius: "9px", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}><Star s={15} /></span>
                 </div>
-                <p style={{ fontSize: "0.95rem", lineHeight: 1.65, color: "var(--text-muted)", marginBottom: "1.1rem", maxWidth: "44ch" }}>{active.description}</p>
-                {/* last touched — compact line */}
-                <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginBottom: "1.3rem", fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--text-muted)" }}>
-                  <Clock s={13} c="currentColor" /> Last touched · {active.updated}
-                </div>
-                <div style={{ height: 1, background: "var(--border)", marginBottom: "1.4rem" }} />
-                <div style={{ display: "grid", gridTemplateColumns: "1.25fr 1fr", gap: "1rem", alignItems: "center", marginBottom: "1.4rem" }}>
+                <p style={{ fontSize: "0.95rem", lineHeight: 1.6, color: "var(--text-muted)", marginBottom: "1.3rem", maxWidth: "60ch" }}>{active.description}</p>
+                {/* meta row — spread across the full width */}
+                <div className="grid grid-cols-1 sm:grid-cols-[1.05fr_0.7fr_1.5fr]" style={{ gap: "1.4rem", borderTop: "1px solid var(--border)", paddingTop: "1.2rem", alignItems: "start" }}>
                   <MetaCell label="Current Focus">
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                       <span style={{ width: 36, height: 36, borderRadius: "10px", flexShrink: 0, background: "var(--surface)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: active.accent }}><Brain s={18} c={active.accent} /></span>
@@ -211,61 +209,41 @@ export function Lab() {
                       <span style={{ fontFamily: "var(--font-display)", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: active.accent }}>{active.stage}</span>
                     </span>
                   </MetaCell>
-                </div>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "0.7rem", padding: "0.9rem 1rem", borderRadius: "12px", background: `${active.accent}0E`, border: `1px solid ${active.accent}22` }}>
-                  <Sparkles size={16} strokeWidth={2} style={{ color: active.accent, flexShrink: 0, marginTop: "0.1rem" }} aria-hidden="true" />
-                  <div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: active.accent, marginBottom: "0.2rem" }}>Current Obsession</div>
-                    <div style={{ fontSize: "0.88rem", color: "var(--text)", lineHeight: 1.45 }}>{active.obsession}</div>
-                  </div>
+                  <MetaCell label="Current Obsession">
+                    <span style={{ fontSize: "0.88rem", color: "var(--text)", lineHeight: 1.5, fontStyle: "italic" }}>{active.obsession}</span>
+                  </MetaCell>
                 </div>
               </motion.div>
 
-              {/* Tab insights (dark) */}
-              <div className="w-full lg:w-[244px] lg:shrink-0" style={{ padding: "1.3rem", borderRadius: "16px", background: "#0E1117", alignSelf: "stretch" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.3rem" }}>
-                  <Trend s={16} c="#9AA4B2" />
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>{labIntro.panelTitle}</span>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {openTabs.map((t, i) => {
-                    const sel = t.id === activeId;
-                    return (
-                      <button key={t.id} type="button" onClick={() => setActiveIdx(i)}
-                        style={{ display: "flex", flexDirection: "column", gap: "0.4rem", background: "transparent", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}>
-                        <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
-                          <span style={{ display: "flex", alignItems: "center", gap: "0.55rem" }}>
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: t.accent, boxShadow: sel ? `0 0 8px ${t.accent}` : "none" }} />
-                            <span style={{ fontFamily: "var(--font-display)", fontSize: "0.82rem", fontWeight: sel ? 700 : 500, color: sel ? "#FFFFFF" : "rgba(255,255,255,0.72)" }}>{t.name}</span>
-                          </span>
-                          <span style={{ fontFamily: "var(--font-display)", fontSize: "0.78rem", fontWeight: 700, color: sel ? t.accent : "rgba(255,255,255,0.6)" }}>{t.bandwidth}%</span>
-                        </span>
-                        <span style={{ height: 4, borderRadius: "999px", background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                          <motion.span initial={false} animate={{ width: `${t.bandwidth}%`, opacity: sel ? 1 : 0.55 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                            style={{ display: "block", height: "100%", borderRadius: "999px", background: t.accent }} />
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div style={{ marginTop: "1.4rem", display: "flex", alignItems: "flex-start", gap: "0.6rem", padding: "0.85rem", borderRadius: "12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  <span style={{ color: "#FEBC2E", flexShrink: 0 }}><Bulb s={16} c="#FEBC2E" /></span>
-                  <span style={{ fontSize: "0.72rem", lineHeight: 1.45, color: "rgba(255,255,255,0.6)" }}>Many more ideas on the list. Some are quiet. Some are crazy.</span>
-                </div>
+              {/* Recently closed — ghost tabs, reinforcing "always exploring" */}
+              <div style={{ marginTop: "1.1rem", display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.55rem" }}>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-muted)", opacity: 0.6, marginRight: "0.2rem" }}>Recently closed</span>
+                {labIntro.recentlyClosed.map((name) => (
+                  <span key={name} style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.32rem 0.7rem", borderRadius: "8px", border: "1px dashed var(--border)", fontFamily: "var(--font-display)", fontSize: "0.74rem", color: "var(--text-muted)", opacity: 0.45 }}>
+                    <Close s={10} c="currentColor" /> {name}
+                  </span>
+                ))}
               </div>
             </div>
 
             {/* Footer */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "0.85rem 1.4rem", borderTop: "1px solid var(--border)", background: "var(--surface)" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "0.7rem", fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                <motion.span animate={!prefersReduced ? { opacity: [1, 0.4, 1] } : {}} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  style={{ width: 8, height: 8, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.2)", flexShrink: 0 }} />
-                {labIntro.counters.map((c, i) => (
-                  <span key={c.label} style={{ display: "inline-flex", alignItems: "center", gap: "0.7rem" }}>
-                    {i > 0 && <span style={{ opacity: 0.4 }}>·</span>}
-                    <span><span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)" }}>{c.value}</span> {c.label}</span>
-                  </span>
-                ))}
+              <span style={{ display: "flex", alignItems: "center", gap: "1.1rem", fontSize: "0.78rem", color: "var(--text-muted)", flexWrap: "wrap" }}>
+                {labIntro.counters.map((c, i) => {
+                  const dot = ["#22C55E", "#9AA4B2", "var(--accent)"][i] ?? "var(--text-muted)";
+                  return (
+                    <span key={c.label} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0 }}>
+                        <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: dot }} />
+                        {i === 0 && !prefersReduced && (
+                          <motion.span aria-hidden="true" animate={{ scale: [1, 2.4], opacity: [0.55, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                            style={{ position: "absolute", inset: 0, borderRadius: "50%", background: dot }} />
+                        )}
+                      </span>
+                      <span><span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)" }}>{c.value}</span> {c.label}</span>
+                    </span>
+                  );
+                })}
               </span>
               <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontFamily: "var(--font-caveat)", fontSize: "1.15rem", color: "var(--accent)" }}>
                 More coming soon

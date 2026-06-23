@@ -52,14 +52,10 @@ function Glyph({ name, s = 20, c = "currentColor" }: { name: ContactIcon | Trait
 function Orbit({ prefersReduced }: { prefersReduced: boolean | null }) {
   return (
     <div className="relative mx-auto hidden md:block" style={{ width: "100%", maxWidth: 460, aspectRatio: "1" }} aria-hidden="true">
-      {/* dashed rings — slow counter-rotation */}
-      {[{ r: 44, dur: 60, dir: 1 }, { r: 30, dur: 44, dir: -1 }].map((ring, i) => (
-        <motion.div key={i}
-          animate={!prefersReduced ? { rotate: 360 * ring.dir } : {}}
-          transition={{ duration: ring.dur, repeat: Infinity, ease: "linear" }}
-          style={{ position: "absolute", left: "50%", top: "50%", width: `${ring.r * 2}%`, height: `${ring.r * 2}%`, transform: "translate(-50%,-50%)", borderRadius: "50%", border: "1px dashed #C9CDDA" }}>
-          <span style={{ position: "absolute", left: "50%", top: -3, width: 6, height: 6, borderRadius: "50%", background: i === 0 ? "#8B5CF6" : "#2563EB", transform: "translateX(-50%)" }} />
-        </motion.div>
+      {/* concentric dashed orbit rings — centered on the core, architectural & subtle */}
+      {[33, 20].map((r) => (
+        <div key={r}
+          style={{ position: "absolute", left: "50%", top: "50%", width: `${r * 2}%`, height: `${r * 2}%`, transform: "translate(-50%,-50%)", borderRadius: "50%", border: "1px dashed rgba(10,10,11,0.10)" }} />
       ))}
 
       {/* center core */}
@@ -76,7 +72,7 @@ function Orbit({ prefersReduced }: { prefersReduced: boolean | null }) {
       {/* trait markers */}
       {orbitTraits.map((t) => {
         const rad = (t.angle * Math.PI) / 180;
-        const dot = { x: 50 + 30 * Math.cos(rad), y: 50 + 30 * Math.sin(rad) };
+        const dot = { x: 50 + 33 * Math.cos(rad), y: 50 + 33 * Math.sin(rad) };
         const lab = { x: 50 + 44 * Math.cos(rad), y: 50 + 44 * Math.sin(rad) };
         const left = Math.cos(rad) < -0.25, right = Math.cos(rad) > 0.25;
         return (
@@ -146,6 +142,7 @@ export function Contact() {
 
           {/* CENTER — orbit */}
           <motion.div
+            className="hidden md:block"
             initial={!prefersReduced ? { opacity: 0, scale: 0.94 } : false}
             whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -175,8 +172,8 @@ export function Contact() {
                       <Glyph name={m.icon} s={20} c={m.accent} />
                     </span>
                     <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: "block", fontFamily: "var(--font-display)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.1rem" }}>{m.label}</span>
-                      <span style={{ display: "block", fontFamily: "var(--font-display)", fontSize: "0.9rem", fontWeight: 600, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.value}</span>
+                      <span style={{ display: "block", fontFamily: "var(--font-display)", fontSize: "0.6875rem", fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.15rem" }}>{m.label}</span>
+                      <span style={{ display: "block", fontFamily: "var(--font-display)", fontSize: "1rem", fontWeight: 600, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.value}</span>
                     </span>
                     <span style={{ width: 32, height: 32, borderRadius: "50%", flexShrink: 0, background: justCopied ? "#059669" : "var(--text)", color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s ease" }}>
                       <Glyph name={justCopied ? "check" : isCopy ? "copy" : "external"} s={14} c="#FFF" />
@@ -189,8 +186,8 @@ export function Contact() {
         </div>
 
         {/* ── Reasons strip ────────────────────────────────────────────── */}
-        <div className="mt-14" style={{ padding: "1.5rem 1.75rem", borderRadius: "20px", border: "1px solid var(--border)", background: "rgba(255,255,255,0.5)" }}>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-[auto_1fr_1fr_1fr_1fr] md:items-center md:gap-8">
+        <div className="mt-6 md:mt-14" style={{ padding: "1.5rem 1.75rem", borderRadius: "20px", border: "1px solid var(--border)", background: "rgba(255,255,255,0.5)" }}>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-[auto_1fr_1fr_1fr_1fr] md:items-center md:gap-8">
             <div>
               <div style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>{contactIntro.reasonsKicker}</div>
               <div className="inline-flex items-center gap-1.5" style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.35rem", color: "var(--text)" }}>
@@ -198,22 +195,30 @@ export function Contact() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="var(--text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </div>
             </div>
-            {reachReasons.map((r, i) => (
-              <motion.div key={r.id} className="flex items-center gap-3"
-                initial={!prefersReduced ? { opacity: 0, y: 12 } : false}
-                whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-30px" }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}>
-                <span style={{ width: 40, height: 40, borderRadius: "11px", flexShrink: 0, background: `${r.accent}16`, border: `1px solid ${r.accent}28`, display: "flex", alignItems: "center", justifyContent: "center", color: r.accent }}>
-                  <Glyph name={r.icon} s={19} c={r.accent} />
-                </span>
-                <span style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", fontWeight: 500, color: "var(--text)", lineHeight: 1.3, whiteSpace: "pre-line" }}>{r.title}</span>
-              </motion.div>
-            ))}
+            {/* 2×2 grid on mobile; flows into the desktop row via display:contents */}
+            <div className="grid grid-cols-2 gap-4 md:contents">
+              {reachReasons.map((r, i) => (
+                <motion.div key={r.id} className="flex items-center gap-3"
+                  initial={!prefersReduced ? { opacity: 0, y: 12 } : false}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-30px" }}
+                  transition={{ duration: 0.5, delay: i * 0.08 }}>
+                  <span style={{ width: 40, height: 40, borderRadius: "11px", flexShrink: 0, background: `${r.accent}16`, border: `1px solid ${r.accent}28`, display: "flex", alignItems: "center", justifyContent: "center", color: r.accent }}>
+                    <Glyph name={r.icon} s={19} c={r.accent} />
+                  </span>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", fontWeight: 500, color: "var(--text)", lineHeight: 1.3, whiteSpace: "pre-line" }}>{r.title}</span>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
 
+        {/* ── Final sign-off — a quiet ending to the journey ───────────── */}
+        <p className="mt-12 text-center" style={{ fontFamily: "var(--font-display)", fontSize: "0.75rem", letterSpacing: "0.02em", color: "var(--text-muted)", opacity: 0.7 }}>
+          {contactMeta.signoff}
+        </p>
+
         {/* ── Footer strip ─────────────────────────────────────────────── */}
-        <div className="mt-7 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="mt-5 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
             <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text)" }}>
               <motion.span animate={!prefersReduced ? { opacity: [1, 0.4, 1] } : {}} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}

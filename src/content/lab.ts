@@ -214,6 +214,13 @@ export const labIntro = {
   ],
   mode: "Explore • Build • Ship",
   panelTitle: "Mental Bandwidth",
+  /** Ghost tabs — ideas recently parked, reinforcing "always exploring" */
+  recentlyClosed: [
+    "Notion API automation",
+    "Three.js shader study",
+    "Newsletter pipeline",
+    "Figma plugin sketch",
+  ],
   /** Footer counters — the little story */
   counters: [
     { value: "5", label: "tabs open" },

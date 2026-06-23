@@ -15,11 +15,15 @@ export interface WorkMetric {
 export interface SelectedWorkItem {
   id: string;
   title: string;
+  /** Optional product positioning line shown under the title (hero card) */
+  subtitle?: string;
   description: string;
   year: number;
   mediaLabel: string;
   mediaAspect: string;
   mediaType: MediaType;
+  /** If set, renders a real image (full, uncropped) instead of a Placeholder. */
+  mediaSrc?: string;
   /** If set, links to /work/[slug] case study page */
   slug?: string;
   /** One-line outcome — shown on editorial cards */
@@ -32,6 +36,8 @@ export interface SelectedWorkItem {
   metrics?: WorkMetric[];
   /** One-line challenge framing — shown below the description */
   challenge?: string;
+  /** Short "proof of work" tags that float around the chapter visual */
+  artifacts?: string[];
 }
 
 export interface WorkCategoryData {
@@ -51,30 +57,33 @@ export const workCategories: WorkCategoryData[] = [
     gridStyle: "editorial",
     items: [
       {
-        id: "lead-crm",
-        title: "LeadCRM",
+        id: "infinity-gst",
+        title: "LedgerFlow",
+        subtitle: "Business Operating System",
         description:
-          "A CRM built for solo operators and small sales teams — fast, opinionated, and designed to get out of your way.",
-        year: 2024,
-        mediaLabel: "LeadCRM — product screenshot",
-        mediaAspect: "16/10",
+          "From quotation to GST filing — one system replacing spreadsheets, manual calculations, and month-end chaos.",
+        year: 2025,
+        mediaLabel: "LedgerFlow — product overview",
+        mediaAspect: "3/2",
         mediaType: "image",
-        slug: "lead-crm",
-        outcome: "Reduced pipeline management time by 60% for early users.",
+        mediaSrc: "/work/infinity-gst/cover.jpg",
+        slug: "infinity-gst",
+        outcome: "One source of truth — from the first quotation to the final GST return.",
         category: "Product · Design · Engineering",
-        role: "Product, Design & Engineering — solo", // !! PLACEHOLDER — update before launch !!
-        challenge: "Most CRMs are built for teams of 20. Solo operators were paying enterprise prices for features they'd never use.", // !! PLACEHOLDER !!
+        role: "Product, Design & Engineering — solo",
         metrics: [
-          { label: "Pipeline time saved", value: "60%" },  // !! PLACEHOLDER !!
-          { label: "Time to first deal",  value: "3 days" }, // !! PLACEHOLDER !!
-          { label: "Setup time",          value: "< 5 min" }, // !! PLACEHOLDER !!
+          { label: "Documents",   value: "5" },        // Quotation · Proforma · Invoice · Receipt · Expense
+          { label: "GSTR-1 / 3B", value: "GST-ready" },
+          { label: "Brands",      value: "2" },         // Ritera Publishing · Ratix Info Tech
         ],
+        artifacts: ["GST-ready", "Auto filing", "Quotation", "Tax invoice", "Cash flow"],
       },
       {
         id: "author-dashboard",
         title: "Author Dashboard",
+        subtitle: "Publishing Platform",
         description:
-          "A writing and publishing workspace that connects content creation to audience analytics in one view.",
+          "From writing drafts to understanding readers — one workspace for the whole publishing loop.",
         year: 2024,
         mediaLabel: "Author Dashboard — product screenshot",
         mediaAspect: "16/10",
@@ -89,12 +98,14 @@ export const workCategories: WorkCategoryData[] = [
           { label: "Time to launch",  value: "6 weeks" }, // !! PLACEHOLDER !!
           { label: "Integrations",    value: "8"       }, // !! PLACEHOLDER !!
         ],
+        artifacts: ["Publishing", "Analytics", "Engagement", "Audience"],
       },
       {
         id: "trackpwd",
         title: "TrackPWD",
+        subtitle: "Security Platform",
         description:
-          "A privacy-first password health tracker that audits credential exposure without storing any secrets.",
+          "Credential monitoring without storing a single secret — privacy-first by architecture.",
         year: 2023,
         mediaLabel: "TrackPWD — product screenshot",
         mediaAspect: "16/10",
@@ -105,10 +116,11 @@ export const workCategories: WorkCategoryData[] = [
         role: "Engineering & Architecture — solo", // !! PLACEHOLDER !!
         challenge: "Credential monitoring tools all required accounts, stored data, or sent secrets to third-party servers. That's the exact threat they're supposed to prevent.", // !! PLACEHOLDER !!
         metrics: [
-          { label: "Checks per day",  value: "10k"  }, // !! PLACEHOLDER !!
-          { label: "Server cost",     value: "$4/mo" }, // !! PLACEHOLDER !!
-          { label: "Data stored",     value: "Zero"  }, // !! PLACEHOLDER !!
+          { label: "Checks / day",  value: "10k+"  }, // !! PLACEHOLDER !!
+          { label: "Server cost",   value: "$4/mo" }, // !! PLACEHOLDER !!
+          { label: "Data stored",   value: "Zero"  }, // !! PLACEHOLDER !!
         ],
+        artifacts: ["Security", "Monitoring", "Zero storage", "Automation"],
       },
     ],
   },

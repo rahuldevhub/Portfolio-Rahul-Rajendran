@@ -1,5 +1,15 @@
 import type { MDXComponents } from "mdx/types";
 import { Placeholder } from "@/components/ui";
+import {
+  MacWindow,
+  Cards,
+  Card,
+  Checklist,
+  Check,
+  BuiltWith,
+  Flow,
+  Scope,
+} from "@/components/case-study/blocks";
 
 /**
  * Global MDX component overrides.
@@ -10,6 +20,16 @@ export function useMDXComponents(): MDXComponents {
   return {
     // Make Placeholder available in MDX files for screenshot slots
     Placeholder,
+
+    // Case-study building blocks
+    MacWindow,
+    Cards,
+    Card,
+    Checklist,
+    Check,
+    BuiltWith,
+    Flow,
+    Scope,
 
     // Prose overrides — keep these minimal; prose styling is in the layout
     h1: (props) => (

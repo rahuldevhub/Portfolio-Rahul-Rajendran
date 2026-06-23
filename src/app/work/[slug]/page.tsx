@@ -19,7 +19,7 @@ type CaseStudyModule = {
 };
 
 const modules: Record<string, () => Promise<CaseStudyModule>> = {
-  "lead-crm": () => import("@/content/work/lead-crm.mdx"),
+  "infinity-gst": () => import("@/content/work/infinity-gst.mdx"),
   "author-dashboard": () => import("@/content/work/author-dashboard.mdx"),
   trackpwd: () => import("@/content/work/trackpwd.mdx"),
 };
