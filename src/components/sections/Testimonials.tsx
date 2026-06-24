@@ -166,7 +166,7 @@ export function Testimonials() {
   const activeColor = reputationCountries.find((c) => c.id === activeId)?.accent ?? "#2563EB";
 
   return (
-    <section style={{ backgroundColor: "var(--bg)" }} className="relative overflow-hidden py-[clamp(4rem,7vw,8rem)]">
+    <section style={{ backgroundColor: "var(--surface)" }} className="relative overflow-hidden py-[clamp(4rem,7vw,8rem)]">
       <Container>
         <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.22em]"
           style={{ color: "var(--text-muted)", fontFamily: "var(--font-display)" }}>

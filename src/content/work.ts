@@ -36,14 +36,14 @@ export const work: WorkItem[] = [
   },
   {
     slug: "author-dashboard",
-    title: "Author Dashboard",
+    title: "AuthorOS",
     description:
-      "A writing and publishing workspace that connects content creation to audience analytics in one view.",
+      "A publishing intelligence platform that gives authors a single view of distribution, sales, royalties, and reader engagement — long after their book goes live.",
     category: "Product · Design · Engineering",
     year: 2024,
-    thumbnailLabel: "Author Dashboard — product screenshot",
+    thumbnailLabel: "AuthorOS — author workspace screenshot",
     thumbnailAspect: "16/9",
-    outcome: "Shipped from zero to 200 active writers in 6 weeks.",
+    outcome: "Visibility beyond publication — distribution, sales, and royalties in one place.",
     featured: true,
   },
   {

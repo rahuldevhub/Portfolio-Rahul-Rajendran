@@ -7,7 +7,6 @@ import { Sparkles } from "lucide-react";
 const NAV_ITEMS = [
   { label: "Story", href: "#story" },
   { label: "Work", href: "#work" },
-  { label: "Process", href: "#process" },
   { label: "Lab", href: "#lab" },
   { label: "Contact", href: "#contact" },
 ] as const;

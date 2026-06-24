@@ -25,7 +25,7 @@ import type { SkillCard, StatItem, SkillCardIcon, StatIcon } from "@/content/her
 
 // ─── Icon registries ───────────────────────────────────────────────────────────
 const CARD_ICONS: Record<SkillCardIcon, LucideIcon> = {
-  Sparkles, Pen, Code2, Play, Clapperboard,
+  Sparkles, Pen, Code2, Play, Clapperboard, BookOpen,
 };
 const STAT_ICONS: Record<StatIcon, LucideIcon> = {
   Zap, BookOpen, Rocket, Target, Sparkles,
@@ -535,17 +535,121 @@ function OrbitalScene({ prefersReduced }: { prefersReduced: boolean | null }) {
   );
 }
 
+/* ─── Mobile avatar scene ─────────────────────────────────────────────────────
+ * The desktop orbital scene doesn't render on mobile, which left the hoisted
+ * mobile avatar standing in empty space. This wraps it in a scaled-down
+ * ecosystem — soft blue/violet/pink aura, two faint orbital rings, a softer
+ * platform glow, and a few floating accents — so the avatar reads as the
+ * center of a system, matching the desktop feel. Mobile-only.
+ */
+function MobileAvatarScene({ prefersReduced }: { prefersReduced: boolean | null }) {
+  const dots = [
+    { x: "13%", y: "24%", s: 6, c: "#6082FF", dur: 4.6 },
+    { x: "85%", y: "30%", s: 5, c: "#A882FF", dur: 5.3 },
+    { x: "82%", y: "68%", s: 7, c: "#F082C8", dur: 6.1 },
+    { x: "15%", y: "62%", s: 5, c: "#6082FF", dur: 5.7 },
+  ] as const;
+
+  const doodles = [
+    { src: "/elements/paper-airplane.png", size: 26, rot: -10, op: 0.22, pos: { top: "6%",  right: "7%" }, dur: 6.5, y: 8 },
+    { src: "/elements/doodle-stars.png",   size: 22, rot:   6, op: 0.20, pos: { top: "12%", left:  "5%" }, dur: 5.4, y: 7 },
+    { src: "/elements/star.png",           size: 18, rot:  -8, op: 0.18, pos: { bottom: "22%", right: "3%" }, dur: 6.0, y: 6 },
+  ] as const;
+
+  return (
+    <div className="relative mx-auto" style={{ width: "100%", maxWidth: 300, aspectRatio: "0.92" }}>
+      {/* Ambient aura — blue / violet / pink, very low opacity, large blur */}
+      <motion.div
+        aria-hidden="true"
+        animate={!prefersReduced ? { opacity: [0.85, 1, 0.85], scale: [1, 1.04, 1] } : {}}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: "absolute", inset: "-12% -8%", zIndex: 0, pointerEvents: "none",
+          background:
+            "radial-gradient(42% 42% at 50% 36%, rgba(96,130,255,0.18) 0%, transparent 70%)," +
+            "radial-gradient(40% 40% at 34% 58%, rgba(168,130,255,0.15) 0%, transparent 72%)," +
+            "radial-gradient(40% 42% at 68% 62%, rgba(244,130,200,0.13) 0%, transparent 72%)",
+          filter: "blur(34px)",
+        }}
+      />
+
+      {/* Two faint orbital rings (10–15% opacity) */}
+      <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full" style={{ zIndex: 0, overflow: "visible" }} aria-hidden="true">
+        <ellipse cx="100" cy="102" rx="94" ry="60" fill="none" stroke="#8A8AA6" strokeWidth="0.7" strokeDasharray="4 6" opacity="0.15" transform="rotate(-8 100 102)" />
+        <ellipse cx="100" cy="106" rx="64" ry="40" fill="none" stroke="#8A8AA6" strokeWidth="0.7" strokeDasharray="4 6" opacity="0.12" transform="rotate(7 100 106)" />
+      </svg>
+
+      {/* Platform glow under the feet — large blur, soft spread, smooth fade */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute", left: "50%", bottom: "3%", transform: "translateX(-50%)",
+          width: "78%", height: "74px", zIndex: 0, pointerEvents: "none",
+          background: "radial-gradient(ellipse at center, rgba(110,110,255,0.30) 0%, rgba(180,130,255,0.16) 48%, transparent 78%)",
+          filter: "blur(28px)", borderRadius: "50%",
+        }}
+      />
+
+      {/* Glowing dots */}
+      {!prefersReduced && dots.map((d, i) => (
+        <motion.span
+          key={i}
+          aria-hidden="true"
+          animate={{ y: [0, -7, 0], opacity: [0.45, 0.9, 0.45] }}
+          transition={{ duration: d.dur, repeat: Infinity, ease: "easeInOut" }}
+          style={{ position: "absolute", left: d.x, top: d.y, width: d.s, height: d.s, borderRadius: "50%", background: d.c, boxShadow: `0 0 8px ${d.c}`, zIndex: 1 }}
+        />
+      ))}
+
+      {/* Floating doodles */}
+      {doodles.map((d, i) => (
+        <motion.div
+          key={i}
+          aria-hidden="true"
+          animate={!prefersReduced ? { y: [0, -d.y, 0] } : {}}
+          transition={{ duration: d.dur, repeat: Infinity, ease: "easeInOut" }}
+          style={{ position: "absolute", zIndex: 1, opacity: d.op, rotate: d.rot, ...d.pos }}
+        >
+          <Image src={d.src} alt="" width={d.size} height={d.size} style={{ width: d.size, height: d.size, display: "block" }} />
+        </motion.div>
+      ))}
+
+      {/* Avatar — bottom-anchored so it stands on the platform glow */}
+      <div className="relative flex h-full items-end justify-center" style={{ zIndex: 2 }}>
+        <motion.div
+          animate={!prefersReduced ? { y: [-4, 4, -4] } : {}}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          style={{ width: "70%", maxWidth: 205 }}
+        >
+          <Image src={characterSrc} alt="Rahul — 3D character" width={1024} height={1536} priority style={{ width: "100%", height: "auto", display: "block" }} />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Mobile cards ────────────────────────────────────────────────────────── */
 function MobileCards({ prefersReduced }: { prefersReduced: boolean | null }) {
+  const cards = skillCards.filter((c) => c.showOnMobile);
   return (
     <div className="flex flex-wrap justify-center gap-3 w-full">
-      {skillCards
-        .filter((c) => c.showOnMobile)
-        .map((card) => (
-          <div key={card.id} style={{ width: "calc(50% - 0.375rem)", minWidth: 130, maxWidth: 190 }}>
+      {cards.map((card, i) => {
+        // If the count is odd, the final card spans full width so it reads as
+        // an intentional banner rather than an orphaned half-card.
+        const isLoneLast = i === cards.length - 1 && cards.length % 2 === 1;
+        return (
+          <div
+            key={card.id}
+            style={
+              isLoneLast
+                ? { width: "100%", maxWidth: 392 }
+                : { width: "calc(50% - 0.375rem)", minWidth: 130, maxWidth: 190 }
+            }
+          >
             <GlassCard card={card} prefersReduced={prefersReduced} onHover={() => {}} onLeave={() => {}} />
           </div>
-        ))}
+        );
+      })}
     </div>
   );
 }
@@ -701,11 +805,11 @@ export function Hero() {
               {/* Headline */}
               <motion.h1
                 variants={STAGGER.item}
+                className="leading-[0.94] lg:leading-[0.98]"
                 style={{
                   fontSize:      "clamp(2.25rem, 3.8vw, 3.5rem)",
                   fontFamily:    "var(--font-display)",
                   fontWeight:    600,
-                  lineHeight:    0.98,
                   letterSpacing: "-0.028em",
                   color:         "var(--text)",
                   margin:        0,
@@ -759,6 +863,13 @@ export function Hero() {
                 {"."}
               </motion.p>
 
+              {/* Mobile-only avatar scene — hoisted up so the brand asset
+                  reveals early (with its own ambient ecosystem). Desktop keeps
+                  the avatar inside the orbital scene on the right. */}
+              <motion.div variants={STAGGER.item} className="py-1 lg:hidden">
+                <MobileAvatarScene prefersReduced={prefersReduced} />
+              </motion.div>
+
               {/* Capability row */}
               <motion.p
                 variants={STAGGER.item}
@@ -766,6 +877,51 @@ export function Hero() {
               >
                 Product Thinking&nbsp;&nbsp;•&nbsp;&nbsp;Design&nbsp;&nbsp;•&nbsp;&nbsp;Engineering&nbsp;&nbsp;•&nbsp;&nbsp;AI&nbsp;&nbsp;•&nbsp;&nbsp;Growth
               </motion.p>
+
+              {/* Compact identity block — who / what / open-to */}
+              <motion.div
+                variants={STAGGER.item}
+                className="flex flex-col gap-1.5 border-l-2 pl-3"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <span className="flex flex-col" style={{ gap: "0.05rem" }}>
+                  {hero.identity.roles.map((role) => {
+                    const [main, org] = role.split(" @ ");
+                    // The line with an org (Founder @ Ritera) is the standout —
+                    // subtle accent styling lifts it above the other two roles.
+                    return (
+                      <span
+                        key={role}
+                        style={{
+                          fontFamily: "var(--font-display)",
+                          fontWeight: 700,
+                          fontSize: org ? "0.86rem" : "0.82rem",
+                          color: org ? "var(--accent)" : "var(--text)",
+                          lineHeight: 1.4,
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {main}
+                        {org && (
+                          <span style={{ fontWeight: 600, color: "var(--accent)", opacity: 0.85 }}>{" @ "}{org}</span>
+                        )}
+                      </span>
+                    );
+                  })}
+                </span>
+                <span className="mt-1 inline-flex items-center gap-2" style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontFamily: "var(--font-display)" }}>
+                  <motion.span
+                    aria-hidden="true"
+                    animate={!prefersReduced ? { opacity: [1, 0.4, 1] } : {}}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ width: 7, height: 7, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.18)", flexShrink: 0 }}
+                  />
+                  <span><span style={{ color: "var(--text)", fontWeight: 600 }}>Open to</span>&nbsp; {hero.identity.openTo}</span>
+                </span>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", opacity: 0.8 }}>
+                  {hero.identity.location}
+                </span>
+              </motion.div>
 
               {/* CTA row */}
               <motion.div variants={STAGGER.item} className="flex flex-wrap items-center gap-3">
@@ -797,6 +953,21 @@ export function Hero() {
                   <ArrowRight size={13} strokeWidth={2}
                     className="transition-transform duration-200 group-hover:translate-x-0.5"
                     aria-hidden="true" />
+                </a>
+
+                <a
+                  href={hero.identity.resumeHref}
+                  download
+                  className="group inline-flex items-center gap-2 px-1 py-2.5 text-sm font-semibold transition-colors duration-200"
+                  style={{ color: "var(--text-muted)", fontFamily: "var(--font-display)", minHeight: "44px", textDecoration: "none" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+                    className="transition-transform duration-200 group-hover:translate-y-0.5">
+                    <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {hero.identity.resumeLabel}
                 </a>
               </motion.div>
 
@@ -835,18 +1006,9 @@ export function Hero() {
               <OrbitalScene prefersReduced={prefersReduced} />
             </div>
 
-            {/* Mobile: character + 3 cards stacked */}
-            <div className="flex flex-col items-center gap-5 pb-6 w-full lg:hidden">
-              <div style={{ width: "52%", maxWidth: "200px" }}>
-                <Image
-                  src={characterSrc}
-                  alt="Rahul — 3D character"
-                  width={1024}
-                  height={1536}
-                  priority
-                  style={{ width: "100%", height: "auto", display: "block" }}
-                />
-              </div>
+            {/* Mobile: capability cards (avatar is hoisted into the left
+                column above so it appears earlier in the scroll). */}
+            <div className="flex w-full flex-col items-center pb-6 lg:hidden">
               <MobileCards prefersReduced={prefersReduced} />
             </div>
 

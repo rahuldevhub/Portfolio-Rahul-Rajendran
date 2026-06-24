@@ -1,79 +1,183 @@
 export const meta = {
-  title: "Author Dashboard",
+  title: "AuthorOS",
   description:
-    "A writing and publishing workspace that connects content creation to audience analytics in one view.",
+    "A publishing intelligence platform that gives authors a single view of distribution, sales, royalties, and reader engagement — long after their book goes live.",
   category: "Product · Design · Engineering",
   year: 2024,
-  outcome: "Shipped from zero to 200 active writers in 6 weeks.",
+  outcome: "Visibility beyond publication — distribution, sales, and royalties in one place.",
 };
+
+Most publishing platforms stop at distribution. They get a book onto the marketplaces and consider the job done.
+
+But for the author, that's where the questions start. Where is the book selling? How much have I actually earned? Who's reading it? So I built **AuthorOS** — a workspace for a self-publishing company that connects distribution, sales, royalties, and reader engagement into a single view, and extends the author relationship long after launch day.
 
 ## The problem
 
-Writers who publish online live across three or four different tools: a writing app, a publishing platform, an email list, and an analytics dashboard. None of these talk to each other. Understanding which content actually builds an audience means exporting CSVs, reconciling timestamps, and doing math in a spreadsheet.
+The company distributes books across several publishing and marketplace channels. The distribution worked. The visibility didn't.
 
-The friction is invisible but constant. Most writers optimize for volume over quality — not because they prefer it, but because it's the only way to get signal from a system that makes measurement hard.
+- Authors published, then went blind — no view of how the book was doing
+- Sales data lived in a different place for every channel
+- Royalties were reconciled by hand and shared on a schedule
+- Distribution reach was invisible — authors didn't know where their book had actually landed
+- The only way to get an answer was to email and wait for a report
 
-<Placeholder label="Author Dashboard — writing + analytics split view" aspect="16/9" />
-
----
-
-## Approach
-
-The product hypothesis: if a writer can see the connection between what they write and who reads it — in the same interface — they'll make better decisions about what to write next.
-
-The design goal was **unified feedback loop**. Write, publish, see impact. No switching context. No spreadsheets.
-
-This meant the writing editor and the analytics view had to exist in the same product, not as separate tools with an export bridge between them.
+The friction was structural. Every author question turned into a manual support request, and every report was a snapshot that was stale the moment it was sent.
 
 ---
 
-## Design thinking
+## The system
 
-The hardest design problem was the split-view. Writers think in drafts; operators think in metrics. These are different modes with different information needs. Forcing both into one screen creates cognitive noise.
+One record per book. Everything an author needs to understand it — distribution, sales, royalties, engagement — hangs off that record and updates as the channels report back.
 
-The solution: **progressive disclosure by mode.** In writing mode, analytics are hidden. In review mode, content and metrics render side-by-side. The transition is explicit — one keystroke or one click to cross the boundary. No accidental distraction while in flow.
+<Flow
+  steps={[
+    { label: "Book Published", note: "Goes live" },
+    { label: "Multi-channel Distribution", note: "Marketplaces" },
+    { label: "Sales Sync", note: "Per channel" },
+    { label: "Royalty Calculation", note: "Per book" },
+    { label: "Reader Engagement", note: "Audience signal" },
+    { label: "Performance View", note: "One workspace" },
+  ]}
+/>
 
-<Placeholder label="Author Dashboard — analytics breakdown by post" aspect="4/3" />
+Instead of an author chasing five dashboards, the data flows the other way — every channel rolls up into one place, normalized into a single picture of how the book performs.
 
-Typography was a core design constraint. The editor had to feel like a writing tool, not a CMS form. That meant: clean serif for the body editor, generous line height, no visible UI chrome while focused. The prose canvas should feel like paper.
+<MacWindow
+  label="AuthorOS — author home: book performance, sales trend, royalties, reach"
+  aspect="16/10"
+  variant="browser"
+  url="authoros.app"
+  caption="The author workspace — book performance, sales, royalties, and reach in one view · screenshot to be added"
+/>
+
+The product is built on three ideas:
+
+<Cards>
+  <Card index="01" title="One book, one record" desc="Distribution, sales, royalties, and engagement aren't separate tools — they're views of a single book record that updates as channels report in." />
+  <Card index="02" title="Visibility, not reports" desc="The author shouldn't have to ask. Performance is live and self-serve, so a question becomes a glance instead of a support ticket." />
+  <Card index="03" title="Built for authors" desc="Not an admin panel for the publisher — a workspace designed around what an author actually wants to know about their own book." />
+</Cards>
 
 ---
 
-## Architecture
+## What I built
 
-- **Next.js** App Router — editor and dashboard as separate route groups
-- **Tiptap** for the rich text editor — extensible, ProseMirror-backed, headless
-- **Resend** for transactional email (publication delivery)
-- **Plausible Analytics** API for first-party metrics aggregation
-- **PostgreSQL** + Drizzle ORM for content and subscriber data
-- **Vercel** + Edge Config for feature flags during rollout
+Designed, engineered, and shipped end to end:
 
-The analytics aggregation pipeline runs on a nightly cron. Raw pageview events are bucketed by post, enriched with subscriber overlap data, and written to a materialized summary table. Dashboard queries hit the summary — never raw events.
+<Scope
+  items={[
+    "Multi-channel sales aggregation",
+    "Per-book performance dashboard",
+    "Royalty tracking & statements",
+    "Distribution reach view",
+    "Reader engagement signals",
+    "Author book library",
+    "Sales-trend analytics",
+    "Channel-level breakdowns",
+    "Role-based author accounts",
+    "Notification & report exports",
+    "Data normalization pipeline",
+    "Responsive author workspace",
+  ]}
+/>
+
+> I identified a gap in the publishing workflow — authors had no visibility after publication — and designed a system that closes it. From information architecture and data modelling to the analytics experience and deployment, every layer was built end to end.
 
 ---
 
-## Build process
+## The author workspace
 
-The biggest risk was editor quality. A writing tool with a mediocre editor doesn't get used. I spent the first two weeks on nothing but the editor — typography, focus mode, keyboard shortcuts, paste behavior. Only when it felt genuinely good to write in did I build the publishing and analytics layers.
+The hardest design problem was information architecture. An author thinks about *their book* first, then drills into the detail. So the workspace leads with the book, and every metric is one level down from it — never a wall of numbers on the way in.
 
-<Placeholder label="Author Dashboard — editor in focus mode" aspect="16/9" />
+<MacWindow
+  label="AuthorOS — book library: each title with live sales, reach, and royalty status"
+  aspect="16/10"
+  variant="browser"
+  url="authoros.app/books"
+  caption="Book library — every title with its own live performance card · screenshot to be added"
+/>
 
-The analytics integration came last. This was intentional: getting the writing experience right came first, because that's what writers would judge the tool on in the first five minutes.
+<MacWindow
+  label="AuthorOS — book detail: sales by channel, royalty earned, distribution reach"
+  aspect="16/10"
+  variant="browser"
+  url="authoros.app/books/the-quiet-shore"
+  caption="Book detail — sales by channel, royalties earned, and where the book is distributed · screenshot to be added"
+/>
+
+---
+
+## Sales & royalties
+
+This is the part authors care about most, and the part that has to be trustworthy. Sales arrive in different shapes from every channel; royalties depend on getting that normalization exactly right.
+
+<Cards>
+  <Card tag="Aggregation" title="Every channel, one number" desc="Sales from each marketplace are pulled in, normalized to a common model, and rolled into a single per-book total — no CSVs, no reconciliation." />
+  <Card tag="Royalties" title="Earned, per book" desc="Royalties are calculated per title and surfaced as clear statements, so an author always knows what they've earned and where it came from." />
+  <Card tag="Trends" title="Performance over time" desc="Sales aren't just a snapshot — the workspace shows the trend, so an author can see whether a book is building or fading." />
+</Cards>
+
+<MacWindow
+  label="AuthorOS — royalty statement: earnings per book, broken down by channel"
+  aspect="16/10"
+  caption="Royalty statement — earnings per book, broken out by distribution channel · screenshot to be added"
+/>
+
+---
+
+## Distribution & reach
+
+Authors rarely know how far their book actually travelled. AuthorOS makes distribution reach visible — which channels carry the title, and where the sales are coming from — so reach stops being a black box.
+
+<MacWindow
+  label="AuthorOS — distribution reach: channels carrying the title and sales by source"
+  aspect="16/10"
+  variant="browser"
+  url="authoros.app/reach"
+  caption="Distribution reach — channels carrying each title and where sales originate · screenshot to be added"
+/>
+
+---
+
+## Small decisions that matter
+
+The difference between an admin panel and a product authors *want* to open lives in the details:
+
+- **Author-first language.** No internal jargon from the publishing side — every label is written for the person who wrote the book.
+- **A glance, then the detail.** The home view answers the three questions an author has first; everything else is one click deeper, never in the way.
+- **Honest numbers.** When channel data is delayed, the workspace says so rather than showing a confident-but-wrong figure.
+- **No empty states that feel broken.** A freshly published book with no sales yet gets a real "here's what to expect" view, not a blank dashboard.
 
 ---
 
 ## Result
 
-- 200 active writers within 6 weeks of launch
-- Average post per user per week: 2.3 (vs. industry benchmark of ~0.8 for newsletter tools)
-- Top requested feature after launch: scheduled publishing — added in week 8
-
-The focus mode adoption surprised me — 65% of sessions used it. Writers want the distraction removed more than they want features added.
+<Checklist>
+  <Check>Authors get a single workspace for distribution, sales, royalties, and engagement.</Check>
+  <Check>Sales across multiple channels roll up into one normalized, per-book view.</Check>
+  <Check>Royalties are tracked per title — visible to the author, not buried in a report.</Check>
+  <Check>Performance is self-serve and live, so questions stop becoming support requests.</Check>
+  <Check>Built around the author's mental model, not the publisher's admin panel.</Check>
+</Checklist>
 
 ---
 
-## Lessons learned
+## Building publishing infrastructure
 
-**The editor is the product.** Everything else — analytics, publishing, subscribers — is infrastructure. If the writing experience isn't excellent, nothing else matters enough to retain users. Sequence your builds accordingly.
+**The product is the visibility, not the dashboard.** Anyone can render a chart. The value here was connecting fragmented channel data into one trustworthy picture of a book — that connection is the product, and the dashboard is just where you see it.
 
-**Analytics without context are noise.** Pageviews next to a post title is interesting. Pageviews next to subscriber conversion rate, by post, over time — that's actionable. The design had to create that context, not just surface raw numbers.
+**Information architecture is the real design work.** The hard part wasn't styling screens; it was deciding what an author sees first, second, and third. Leading with the book and pushing detail one level down turned a pile of metrics into something an author could actually read.
+
+**Closing a workflow gap beats adding a feature.** The opportunity wasn't a better writing tool — it was the silence after publication. Filling that gap, with a workspace that answers the author's own questions, is what turns distribution into a relationship.
+
+<BuiltWith
+  items={[
+    "Next.js",
+    "TypeScript",
+    "PostgreSQL",
+    "Drizzle ORM",
+    "Tailwind CSS",
+    "Recharts",
+    "Vercel",
+  ]}
+/>

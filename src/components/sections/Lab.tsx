@@ -59,7 +59,7 @@ export function Lab() {
   }, [prefersReduced, paused]);
 
   return (
-    <Section id="lab" bg="surface">
+    <Section id="lab" bg="default">
       <Container>
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.46fr_1fr] lg:gap-14 lg:items-center">
 

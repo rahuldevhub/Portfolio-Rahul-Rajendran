@@ -140,7 +140,7 @@ export function AISection() {
   const readout = hoveredId ? aiTools.find((t) => t.id === hoveredId)! : null;
 
   return (
-    <section style={{ backgroundColor: "var(--surface)" }} className="relative py-[clamp(4rem,7vw,8rem)]">
+    <section style={{ backgroundColor: "var(--bg)" }} className="relative py-[clamp(4rem,7vw,8rem)]">
       <Container>
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1fr] lg:gap-16 lg:items-center">
 

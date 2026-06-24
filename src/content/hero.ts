@@ -23,6 +23,17 @@ export const hero = {
       href: "#contact",
     },
   },
+
+  /** Compact professional identity — answers who / what / looking-for at a glance.
+   *  Roles render stacked; an "@ Org" suffix is de-emphasized to preserve weight. */
+  identity: {
+    roles: ["Product Builder", "Full-Stack Engineer", "Founder @ Ritera Publishing"],
+    location: "India · Remote-friendly",
+    openTo: "Product Engineering · Founding Engineer · Startup roles",
+    /** Drop the file at /public/<this path>. Update if renamed. */
+    resumeHref: "/Rahul-Rajendran-Resume.pdf",
+    resumeLabel: "Résumé",
+  },
 } as const;
 
 /** Nodes that orbit around Rahul in the 3D ecosystem visual */
@@ -59,7 +70,8 @@ export type SkillCardIcon =
   | "Pen"
   | "Code2"
   | "Play"
-  | "Clapperboard";
+  | "Clapperboard"
+  | "BookOpen";
 
 export type StatIcon = "Zap" | "BookOpen" | "Rocket" | "Target" | "Sparkles";
 
@@ -94,10 +106,10 @@ export interface StatItem {
 export const skillCards: SkillCard[] = [
   {
     id: "ai-tools",
-    title: "AI & Tools",
+    title: "AI & Systems",
     color: "#2563EB",
-    statusLabel: "Learning",
-    description: "AI, automation & intelligent systems.",
+    statusLabel: "Building",
+    description: "AI agents, automation & intelligent workflows.",
     icon: "Sparkles",
     showOnMobile: true,
     // Top-center — lifted above the character's head (matches reference)
@@ -109,7 +121,7 @@ export const skillCards: SkillCard[] = [
     title: "UI / UX Design",
     color: "#8B5CF6",
     statusLabel: "Designing",
-    description: "Clean, intuitive digital experiences.",
+    description: "Clean, intuitive product interfaces.",
     icon: "Pen",
     showOnMobile: true,
     // Left-upper — on the orbit's left arc
@@ -118,10 +130,10 @@ export const skillCards: SkillCard[] = [
   },
   {
     id: "web-dev",
-    title: "Web Development",
+    title: "Web Engineering",
     color: "#059669",
-    statusLabel: "Building",
-    description: "Fast, scalable web apps.",
+    statusLabel: "Engineering",
+    description: "Fast, scalable full-stack web apps.",
     icon: "Code2",
     showOnMobile: true,
     // Right-upper-mid — on the orbit's right arc
@@ -130,33 +142,35 @@ export const skillCards: SkillCard[] = [
   },
   {
     id: "content",
-    title: "Content Systems",
+    title: "Publishing Systems",
     color: "#D97706",
-    statusLabel: "Creating",
-    description: "Content that connects & converts.",
-    icon: "Play",
-    showOnMobile: false,
+    statusLabel: "Shipping",
+    description: "Platforms that publish & distribute at scale.",
+    icon: "BookOpen",
+    showOnMobile: true,
     // Left-lower — on the orbit's lower-left arc
     pos: { bottom: "14%", left: "-2%" },
     float: { y: 9, duration: 4.0 },
   },
   {
     id: "vfx",
-    title: "VFX & Motion",
+    title: "AR Experiences",
     color: "#E11D48",
-    statusLabel: "Experimenting",
-    description: "Bringing stories to life visually.",
+    statusLabel: "Exploring",
+    description: "Immersive, interactive spatial experiences.",
     icon: "Clapperboard",
-    showOnMobile: false,
+    showOnMobile: true,
     // Right-lower — on the orbit's lower-right arc
     pos: { bottom: "4%", right: "-2%" },
     float: { y: 6, duration: 5.1 },
   },
 ];
 
+// Credibility-driven metrics (replaces vanity stats). ⚠️ Confirm the exact
+// numbers are accurate before publishing — these are claims about real work.
 export const statsBar: StatItem[] = [
-  { icon: "Zap",      value: "5",    label: "Focus Areas",     color: "#2563EB" },
-  { icon: "Sparkles", value: "∞",    label: "Ideas Exploring", color: "#8B5CF6" },
-  { icon: "Rocket",   value: "24/7", label: "Building Mode",    color: "#059669" },
-  { icon: "Target",   value: "1",    label: "Goal · Impact",   color: "#E11D48" },
+  { icon: "Rocket",   value: "40+",     label: "Projects Shipped",   color: "#2563EB" },
+  { icon: "Zap",      value: "2+",      label: "Years Building",     color: "#8B5CF6" },
+  { icon: "BookOpen", value: "Founder", label: "Ritera Publishing",  color: "#059669" },
+  { icon: "Target",   value: "Global",  label: "Clients Served",     color: "#E11D48" },
 ];

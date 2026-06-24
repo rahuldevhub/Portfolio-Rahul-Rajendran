@@ -9,11 +9,13 @@ interface SectionProps extends HTMLAttributes<HTMLElement> {
   bg?: "default" | "surface" | "none";
 }
 
+// Vertical rhythm reduced ~18% from the original scale — sections felt
+// over-padded ("empty" rather than "intentional"). Premium but tighter.
 const paddingMap = {
   none: "",
-  sm: "py-[clamp(2.5rem,5vw,5rem)]",
-  default: "py-[clamp(4rem,7vw,8rem)]",
-  lg: "py-[clamp(5rem,9vw,10rem)]",
+  sm: "py-[clamp(2rem,4vw,4rem)]",
+  default: "py-[clamp(3.25rem,5.5vw,6.5rem)]",
+  lg: "py-[clamp(4rem,7.5vw,8rem)]",
 };
 
 const bgMap = {

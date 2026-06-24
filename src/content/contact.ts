@@ -71,4 +71,13 @@ export const contactMeta = {
   availabilityNote: "Let's create something awesome!",
   location: "Building from Erode, India",
   signoff: "Freelance • Full-Time • Collaborations",
+  /** What Rahul is concretely available for — commercial clarity for hiring */
+  availableForLabel: "Available for",
+  availableFor: [
+    "Product Engineering",
+    "Full-Stack Development",
+    "AI Systems",
+    "Startup MVPs",
+    "Consulting",
+  ],
 };

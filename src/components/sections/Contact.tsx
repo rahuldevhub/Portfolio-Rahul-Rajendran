@@ -107,7 +107,7 @@ export function Contact() {
   const headLines = contactIntro.headline.split("\n");
 
   return (
-    <Section id="contact" bg="default">
+    <Section id="contact" bg="surface">
       <Container>
         {/* ── Top: pitch · orbit · contact cards ───────────────────────── */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.95fr_0.9fr_1fr] lg:gap-10 lg:items-center">
@@ -212,8 +212,31 @@ export function Contact() {
           </div>
         </div>
 
+        {/* ── Available for — commercial clarity on what to hire him for ── */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+          <span style={{ fontFamily: "var(--font-display)", fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)" }}>
+            {contactMeta.availableForLabel}
+          </span>
+          {contactMeta.availableFor.map((s, i) => (
+            <motion.span
+              key={s}
+              initial={!prefersReduced ? { opacity: 0, y: 8 } : false}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.45, delay: i * 0.06 }}
+              style={{
+                fontFamily: "var(--font-display)", fontSize: "0.82rem", fontWeight: 500,
+                color: "var(--text)", padding: "0.4rem 0.85rem", borderRadius: "999px",
+                background: "rgba(255,255,255,0.7)", border: "1px solid var(--border)",
+              }}
+            >
+              {s}
+            </motion.span>
+          ))}
+        </div>
+
         {/* ── Final sign-off — a quiet ending to the journey ───────────── */}
-        <p className="mt-12 text-center" style={{ fontFamily: "var(--font-display)", fontSize: "0.75rem", letterSpacing: "0.02em", color: "var(--text-muted)", opacity: 0.7 }}>
+        <p className="mt-10 text-center" style={{ fontFamily: "var(--font-display)", fontSize: "0.75rem", letterSpacing: "0.02em", color: "var(--text-muted)", opacity: 0.7 }}>
           {contactMeta.signoff}
         </p>
 

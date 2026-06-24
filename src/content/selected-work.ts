@@ -5,7 +5,7 @@
  */
 
 export type MediaType = "image" | "video";
-export type GridStyle = "editorial" | "video-grid" | "screen-grid" | "book-grid";
+export type GridStyle = "editorial" | "showcase";
 
 export interface WorkMetric {
   label: string;
@@ -36,8 +36,15 @@ export interface SelectedWorkItem {
   metrics?: WorkMetric[];
   /** One-line challenge framing — shown below the description */
   challenge?: string;
+  /** Outcome framing shown as a Problem → Solution → Impact block (editorial cards).
+   *  This answers "why does this project matter?" before the visuals. */
+  problem?: string;
+  solution?: string;
+  impact?: string;
   /** Short "proof of work" tags that float around the chapter visual */
   artifacts?: string[];
+  /** Ambient identity colors — drives the soft glow behind the chapter visual */
+  accent?: { glowA: string; glowB: string };
 }
 
 export interface WorkCategoryData {
@@ -45,8 +52,67 @@ export interface WorkCategoryData {
   label: string;
   description: string;
   gridStyle: GridStyle;
+  /** Workspace identity — colored tab dot + the section's ambient glow */
+  tint: { dot: string; glowA: string; glowB: string };
   items: SelectedWorkItem[];
 }
+
+/**
+ * Creative Works — lighter, experimental companion grid shown after the
+ * flagship Product Engineering case studies. These are preview-only cards
+ * (no full case study), kept compact and secondary by design.
+ */
+export interface CreativeWorkItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  tags: string[];
+  /** Optional external link (opens in new tab). Omit for "in development". */
+  href?: string;
+  /** Unique two-stop ambient glow that tints the card on hover */
+  accent: { from: string; to: string };
+}
+
+export const creativeWorksIntro = {
+  /** Handwritten signature line — Rahul personality (rendered in Caveat) */
+  signature: "Experiments that escaped the lab.",
+  heading: "Creative Works",
+  subheading:
+    "Selected brand experiences, marketing sites, UI explorations, and client projects.",
+  footer:
+    "More experiments, client projects, and ideas currently in development.",
+};
+
+export const creativeWorks: CreativeWorkItem[] = [
+  {
+    id: "forge-fitness",
+    title: "Forge Fitness",
+    subtitle: "Story-Driven Brand Experience",
+    tags: ["Motion Design", "Brand Story", "Frontend"],
+    accent: { from: "rgba(255,138,76,0.9)", to: "rgba(229,57,53,0.9)" }, // orange → red
+  },
+  {
+    id: "ritera-landing",
+    title: "Ritera Landing Pages",
+    subtitle: "Publishing Campaign Experiences",
+    tags: ["Marketing", "Conversion", "Landing Page"],
+    accent: { from: "rgba(140,30,55,0.9)", to: "rgba(212,160,60,0.9)" }, // burgundy → gold
+  },
+  {
+    id: "personal-brand-experiments",
+    title: "Personal Brand Experiments",
+    subtitle: "Interactive Portfolio Concepts",
+    tags: ["UI/UX", "Animation", "Creative"],
+    accent: { from: "rgba(34,211,238,0.9)", to: "rgba(43,107,255,0.9)" }, // cyan → blue
+  },
+  {
+    id: "micro-ui-concepts",
+    title: "Micro UI Concepts",
+    subtitle: "Components and Interaction Systems",
+    tags: ["Design System", "Motion", "Frontend"],
+    accent: { from: "rgba(168,85,247,0.9)", to: "rgba(244,114,182,0.9)" }, // purple → pink
+  },
+];
 
 export const workCategories: WorkCategoryData[] = [
   {
@@ -55,6 +121,7 @@ export const workCategories: WorkCategoryData[] = [
     description:
       "Full-stack products built end-to-end — from problem framing to production.",
     gridStyle: "editorial",
+    tint: { dot: "#2B6BFF", glowA: "rgba(43,107,255,0.08)", glowB: "rgba(109,94,248,0.05)" },
     items: [
       {
         id: "infinity-gst",
@@ -71,34 +138,43 @@ export const workCategories: WorkCategoryData[] = [
         outcome: "One source of truth — from the first quotation to the final GST return.",
         category: "Product · Design · Engineering",
         role: "Product, Design & Engineering — solo",
+        problem: "A real business ran on spreadsheets, manual GST math, and month-end reconciliation chaos across two brands.",
+        solution: "A business operating system: quotation → proforma → tax invoice → receipt → GST filing, all in one flow.",
+        impact: "Eliminated manual reconciliation; GSTR-1/3B-ready output; now the single source of truth for Infinity Enterprises.",
         metrics: [
           { label: "Documents",   value: "5" },        // Quotation · Proforma · Invoice · Receipt · Expense
           { label: "GSTR-1 / 3B", value: "GST-ready" },
           { label: "Brands",      value: "2" },         // Ritera Publishing · Ratix Info Tech
         ],
         artifacts: ["GST-ready", "Auto filing", "Quotation", "Tax invoice", "Cash flow"],
+        accent: { glowA: "rgba(70,130,255,0.18)", glowB: "rgba(0,200,150,0.13)" },
       },
       {
         id: "author-dashboard",
-        title: "Author Dashboard",
-        subtitle: "Publishing Platform",
+        title: "AuthorOS",
+        subtitle: "Publishing Intelligence Platform",
         description:
-          "From writing drafts to understanding readers — one workspace for the whole publishing loop.",
+          "Most publishing platforms stop at distribution. AuthorOS gives authors a single view of how their books actually perform after launch — sales, royalties, distribution reach, and reader engagement.",
         year: 2024,
-        mediaLabel: "Author Dashboard — product screenshot",
-        mediaAspect: "16/10",
+        mediaLabel: "AuthorOS — author workspace: book performance, sales, royalties",
+        mediaAspect: "3/2",
         mediaType: "image",
+        mediaSrc: "/work/author-dashboard/cover.jpg",
         slug: "author-dashboard",
-        outcome: "Shipped from zero to 200 active writers in 6 weeks.",
+        outcome: "Visibility beyond publication — distribution, sales, and royalties in one place.",
         category: "Product · Design · Engineering",
-        role: "Product, Design & Engineering — solo", // !! PLACEHOLDER !!
-        challenge: "Writers were toggling between 4 tools to write, publish, and track readers. Every context-switch killed momentum.", // !! PLACEHOLDER !!
+        role: "Product, Design & Engineering — solo",
+        challenge: "Authors publish across multiple marketplaces, then go blind — sales data is fragmented across channels, and the only way to know how a book performs is to request a report and wait.",
+        problem: "After publishing, authors went blind — sales fragmented per channel, royalties reconciled by hand, reports only on request.",
+        solution: "One workspace unifying distribution, sales, royalties, and reader engagement per book — across every marketplace.",
+        impact: "Replaced manual, on-request reporting with live post-launch visibility authors never had before.",
         metrics: [
-          { label: "Active writers",  value: "200"    }, // !! PLACEHOLDER !!
-          { label: "Time to launch",  value: "6 weeks" }, // !! PLACEHOLDER !!
-          { label: "Integrations",    value: "8"       }, // !! PLACEHOLDER !!
+          { label: "Distribution",     value: "Multi-channel" },
+          { label: "Royalty tracking", value: "Per book"      },
+          { label: "Visibility",       value: "Post-launch"   },
         ],
-        artifacts: ["Publishing", "Analytics", "Engagement", "Audience"],
+        artifacts: ["Publishing", "Royalties", "Distribution", "Reader Reach", "Book Performance"],
+        accent: { glowA: "rgba(170,60,80,0.16)", glowB: "rgba(255,180,80,0.13)" },
       },
       {
         id: "trackpwd",
@@ -115,12 +191,16 @@ export const workCategories: WorkCategoryData[] = [
         category: "Engineering · Automation · Security",
         role: "Engineering & Architecture — solo", // !! PLACEHOLDER !!
         challenge: "Credential monitoring tools all required accounts, stored data, or sent secrets to third-party servers. That's the exact threat they're supposed to prevent.", // !! PLACEHOLDER !!
+        problem: "Every credential-monitoring tool wanted accounts, stored data, or secrets sent to third parties — the exact threat they claim to prevent.",
+        solution: "Privacy-first by architecture: credential monitoring that verifies exposure without ever storing a single secret.",
+        impact: "Zero secrets stored · 10k+ checks/day · runs on a $4/mo server.",
         metrics: [
           { label: "Checks / day",  value: "10k+"  }, // !! PLACEHOLDER !!
           { label: "Server cost",   value: "$4/mo" }, // !! PLACEHOLDER !!
           { label: "Data stored",   value: "Zero"  }, // !! PLACEHOLDER !!
         ],
         artifacts: ["Security", "Monitoring", "Zero storage", "Automation"],
+        accent: { glowA: "rgba(90,120,255,0.16)", glowB: "rgba(170,80,255,0.13)" },
       },
     ],
   },
@@ -129,29 +209,32 @@ export const workCategories: WorkCategoryData[] = [
     label: "AR Experiences",
     description:
       "Immersive augmented reality for retail, architecture, and brand storytelling.",
-    gridStyle: "video-grid",
+    gridStyle: "showcase",
+    tint: { dot: "#6D5EF8", glowA: "rgba(109,94,248,0.09)", glowB: "rgba(34,211,238,0.06)" },
     items: [
       {
         id: "ar-spatial-retail",
         title: "Spatial Retail",
         description:
-          "Interactive AR product try-on for e-commerce — visualize in your space before you buy.",
+          "Interactive AR product try-on for e-commerce — visualize an item in your own space before you buy.",
         year: 2024,
-        mediaLabel: "Spatial Retail AR — demo video",
-        mediaAspect: "16/9",
+        mediaLabel: "Spatial Retail AR",
+        mediaAspect: "4/3",
         mediaType: "video",
         category: "AR · Retail · WebXR",
+        accent: { glowA: "rgba(109,94,248,0.9)", glowB: "rgba(34,211,238,0.9)" },
       },
       {
         id: "ar-arch-viz",
         title: "Architecture Viz",
         description:
-          "Real-time AR walkthrough for architectural projects — place a building in any physical space.",
+          "Real-time AR walkthroughs for architectural projects — place a full building into any physical space.",
         year: 2023,
-        mediaLabel: "Architecture Viz AR — demo video",
-        mediaAspect: "16/9",
+        mediaLabel: "Architecture Viz AR",
+        mediaAspect: "4/3",
         mediaType: "video",
         category: "AR · Architecture · Real Estate",
+        accent: { glowA: "rgba(34,211,238,0.9)", glowB: "rgba(43,107,255,0.9)" },
       },
       {
         id: "ar-brand-lens",
@@ -159,52 +242,11 @@ export const workCategories: WorkCategoryData[] = [
         description:
           "Custom AR filters and interactive lenses for brand campaigns — built for reach, not gimmick.",
         year: 2023,
-        mediaLabel: "Brand Lens AR — demo video",
-        mediaAspect: "16/9",
+        mediaLabel: "Brand Lens AR",
+        mediaAspect: "4/3",
         mediaType: "video",
         category: "AR · Branding · Social",
-      },
-    ],
-  },
-  {
-    id: "ui-ux",
-    label: "UI/UX Systems",
-    description:
-      "Design systems and interface frameworks built for scale — tokens to components to patterns.",
-    gridStyle: "screen-grid",
-    items: [
-      {
-        id: "design-system-core",
-        title: "Design System Core",
-        description:
-          "A token-based design system with 200+ components, full dark mode, and multi-brand theming support.",
-        year: 2024,
-        mediaLabel: "Design System Core — component library",
-        mediaAspect: "4/3",
-        mediaType: "image",
-        category: "Design System · Tokens · Figma",
-      },
-      {
-        id: "dashboard-framework",
-        title: "Dashboard Framework",
-        description:
-          "A data-dense layout system for SaaS products — complex information made clear without sacrificing density.",
-        year: 2024,
-        mediaLabel: "Dashboard Framework — UI screens",
-        mediaAspect: "4/3",
-        mediaType: "image",
-        category: "Dashboard · SaaS · Data Viz",
-      },
-      {
-        id: "mobile-ux",
-        title: "Mobile App UX",
-        description:
-          "End-to-end mobile UX for a consumer fintech app — from discovery flows to production-ready specs.",
-        year: 2023,
-        mediaLabel: "Mobile App UX — screens",
-        mediaAspect: "4/3",
-        mediaType: "image",
-        category: "Mobile · Fintech · UX",
+        accent: { glowA: "rgba(168,85,247,0.9)", glowB: "rgba(109,94,248,0.9)" },
       },
     ],
   },
@@ -212,63 +254,45 @@ export const workCategories: WorkCategoryData[] = [
     id: "publishing",
     label: "Publishing",
     description:
-      "Books and long-form work at the intersection of building, design, and systems thinking.",
-    gridStyle: "book-grid",
+      "A full publishing operation — from a repeatable cover system to print-ready interiors and the workflow that ships them.",
+    gridStyle: "showcase",
+    tint: { dot: "#962D4B", glowA: "rgba(150,45,75,0.08)", glowB: "rgba(212,160,60,0.06)" },
     items: [
       {
-        id: "book-product-builder",
-        title: "The Product Builder",
+        id: "pub-cover-system",
+        title: "Cover Design System",
         description:
-          "A practical guide to shipping products from idea to market — for independent builders.",
+          "A repeatable cover framework — type scale, grid, and color rules that keep a whole catalog visually consistent across dozens of titles.",
         year: 2024,
-        mediaLabel: "The Product Builder — book cover",
-        mediaAspect: "2/3",
+        mediaLabel: "Cover Design System",
+        mediaAspect: "4/3",
         mediaType: "image",
-        category: "Product · Founders",
+        category: "Design · Systems",
+        accent: { glowA: "rgba(150,45,75,0.9)", glowB: "rgba(212,160,60,0.9)" },
       },
       {
-        id: "book-systems-thinking",
-        title: "Systems Thinking for Makers",
+        id: "pub-interior",
+        title: "Interior Formatting",
         description:
-          "How the parts connect — engineering, design, and business as one system.",
+          "Production-ready interior layouts — typographic hierarchy, margins, and pagination tuned for both print and digital editions.",
+        year: 2024,
+        mediaLabel: "Interior Formatting",
+        mediaAspect: "4/3",
+        mediaType: "image",
+        category: "Typesetting · Print",
+        accent: { glowA: "rgba(212,160,60,0.9)", glowB: "rgba(150,45,75,0.9)" },
+      },
+      {
+        id: "pub-workflow",
+        title: "Publishing Workflow",
+        description:
+          "Manuscript to market — an editorial-to-distribution pipeline that turns a raw draft into a shipped, multi-channel book.",
         year: 2023,
-        mediaLabel: "Systems Thinking for Makers — book cover",
-        mediaAspect: "2/3",
+        mediaLabel: "Publishing Workflow",
+        mediaAspect: "4/3",
         mediaType: "image",
-        category: "Systems · Strategy",
-      },
-      {
-        id: "book-design-for-engineers",
-        title: "Design for Engineers",
-        description:
-          "The visual thinking primer for technical founders who want to ship better products.",
-        year: 2023,
-        mediaLabel: "Design for Engineers — book cover",
-        mediaAspect: "2/3",
-        mediaType: "image",
-        category: "Design · Engineering",
-      },
-      {
-        id: "book-automate-to-amplify",
-        title: "Automate to Amplify",
-        description:
-          "Workflow automation for solopreneurs — remove the repetitive, reclaim your judgment.",
-        year: 2023,
-        mediaLabel: "Automate to Amplify — book cover",
-        mediaAspect: "2/3",
-        mediaType: "image",
-        category: "Automation · Productivity",
-      },
-      {
-        id: "book-ar-storytellers",
-        title: "AR for Storytellers",
-        description:
-          "Immersive experiences for brands and creators — a practitioner's guide to augmented reality.",
-        year: 2022,
-        mediaLabel: "AR for Storytellers — book cover",
-        mediaAspect: "2/3",
-        mediaType: "image",
-        category: "AR · Creative",
+        category: "Process · Operations",
+        accent: { glowA: "rgba(150,45,75,0.9)", glowB: "rgba(190,120,50,0.9)" },
       },
     ],
   },

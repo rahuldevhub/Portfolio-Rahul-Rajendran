@@ -4,7 +4,6 @@ import { Beliefs } from "@/components/sections/Beliefs";
 import { Capabilities } from "@/components/sections/Capabilities";
 import { OperatorStack } from "@/components/sections/OperatorStack";
 import { SelectedWork } from "@/components/sections/SelectedWork";
-import { Process } from "@/components/sections/Process";
 import { AISection } from "@/components/sections/AISection";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Lab } from "@/components/sections/Lab";
@@ -30,9 +29,6 @@ export default function HomePage() {
 
       {/* Work — tabbed by category */}
       <SelectedWork />
-
-      {/* Process — "Build Log" founder journal deck */}
-      <Process />
 
       {/* AI — "AI Operations" command center */}
       <AISection />
