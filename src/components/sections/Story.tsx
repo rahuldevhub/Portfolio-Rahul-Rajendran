@@ -45,9 +45,6 @@ export function Story() {
   const [toastOn, setToastOn] = useState(false);
   /* Mobile-only: which level card is expanded (accordion). null = all collapsed. */
   const [mobileOpen, setMobileOpen] = useState<number | null>(null);
-  /* Mobile-only quest: only the first N levels are revealed; "Continue Journey"
-   * unlocks the next. Desktop always shows all. */
-  const [revealed, setRevealed] = useState(1);
   const chapterRefs = useRef<(HTMLElement | null)[]>([]);
 
   /* Track the active chapter as it crosses the viewport centre. */
@@ -345,7 +342,7 @@ export function Story() {
                 key={s.id}
                 data-idx={i}
                 ref={(el) => { chapterRefs.current[i] = el; }}
-                className={`relative pl-9 lg:flex lg:min-h-[62vh] lg:flex-col lg:justify-center lg:pl-0 ${i < revealed ? "" : "hidden lg:flex"}`}
+                className="relative pl-9 lg:flex lg:min-h-[62vh] lg:flex-col lg:justify-center lg:pl-0"
                 initial={!prefersReduced ? { opacity: 0, y: 36 } : false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-120px" }}
@@ -356,9 +353,6 @@ export function Story() {
                   <span style={{ width: 15, height: 15, borderRadius: "50%", flexShrink: 0, zIndex: 1, background: i <= active ? s.accent : "var(--surface)", border: `2px solid ${i <= active ? s.accent : "var(--border)"}`, boxShadow: i === active ? `0 0 0 4px ${s.accent}24` : "none", transition: "all 0.4s ease" }} />
                   {i < TOTAL - 1 && <span style={{ flex: 1, width: 2, marginTop: 3, background: i < active ? s.accent : "var(--border)", opacity: i < active ? 0.5 : 1, transition: "all 0.4s ease" }} />}
                 </div>
-
-                {/* Tappable header — toggles the level on mobile; static on desktop */}
-                <div onClick={() => setMobileOpen(isOpen ? null : i)} className="cursor-pointer select-none lg:cursor-default">
 
                 {/* Level eyebrow */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1rem" }}>
@@ -391,44 +385,10 @@ export function Story() {
                   {s.heading}
                 </h3>
 
-                {/* Mobile expand affordance */}
-                <div className="flex flex-wrap items-center" style={{ gap: "0.7rem", marginTop: "0.9rem", marginBottom: isOpen ? "1.5rem" : "0.2rem" }}>
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: "0.72rem", fontWeight: 700, color: s.accent, padding: "0.3em 0.75em", borderRadius: "999px", background: `${s.accent}14`, border: `1px solid ${s.accent}2E` }}>
-                    +{s.skills.length} Skills
-                  </span>
-                  {/* Toggle is a mobile-only accordion control — skills are always expanded on desktop */}
-                  <span className="contents lg:hidden">
-                  {isOpen ? (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontFamily: "var(--font-mono)", fontSize: "0.64rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                      Collapse <span style={{ display: "inline-block", transform: "rotate(180deg)" }}>▾</span>
-                    </span>
-                  ) : (
-                    <motion.span
-                      animate={!prefersReduced ? { boxShadow: [`0 4px 14px ${s.accent}44`, `0 6px 22px ${s.accent}77`, `0 4px 14px ${s.accent}44`] } : {}}
-                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                      style={{
-                        display: "inline-flex", alignItems: "center", gap: "0.45rem",
-                        padding: "0.55rem 1.05rem", borderRadius: "999px",
-                        background: s.accent, color: "#FFFFFF",
-                        fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.82rem",
-                      }}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 11V8a5 5 0 019.9-1M5 11h14v9H5v-9z" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                      Tap to unlock
-                      <span aria-hidden="true">→</span>
-                    </motion.span>
-                  )}
-                  </span>
-                </div>
-                </div>{/* /tappable header */}
-
-                {/* Expandable content — collapsed on mobile until tapped, always open on desktop */}
-                <div className={isOpen ? "block" : "hidden lg:block"}>
-
-                {/* Skills card */}
+                {/* Skills card — always visible on both mobile and desktop */}
                 <div style={{
                   display: "inline-flex", flexWrap: "wrap", gap: "0.5rem",
-                  padding: "0.9rem 1rem", marginBottom: "1.5rem", maxWidth: "fit-content",
+                  padding: "0.9rem 1rem", marginBottom: "1rem", maxWidth: "fit-content",
                   borderRadius: "14px",
                   background: `linear-gradient(145deg, rgba(255,255,255,0.7) 0%, ${s.accent}10 100%)`,
                   border: `1px solid ${s.accent}24`,
@@ -453,42 +413,59 @@ export function Story() {
                   ))}
                 </div>
 
-                {/* Body */}
-                <div className="flex flex-col gap-4" style={{ maxWidth: "52ch" }}>
+                {/* Mobile accordion toggle — hidden on desktop */}
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={`story-body-${s.id}`}
+                  onClick={() => setMobileOpen(isOpen ? null : i)}
+                  className="inline-flex lg:hidden"
+                  style={{
+                    alignItems: "center", gap: "0.4rem",
+                    padding: "0", marginBottom: isOpen ? "1rem" : "0",
+                    background: "none", border: "none", cursor: "pointer",
+                    fontFamily: "var(--font-display)", fontSize: "0.78rem", fontWeight: 600,
+                    color: s.accent, letterSpacing: "0.01em",
+                  }}
+                >
+                  {isOpen ? "Collapse" : "What I Learned"}
+                  <motion.span
+                    aria-hidden="true"
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    style={{ display: "inline-flex", fontSize: "0.7rem" }}
+                  >
+                    ▾
+                  </motion.span>
+                </button>
+
+                {/* Body — always visible on desktop, animated accordion on mobile */}
+                <div className="hidden lg:block" style={{ maxWidth: "52ch" }}>
                   {s.body.map((p, j) => (
                     <p key={j} className="text-base leading-[1.75]" style={{ color: "var(--text-muted)" }}>
                       {p}
                     </p>
                   ))}
                 </div>
+                <motion.div
+                  id={`story-body-${s.id}`}
+                  className="lg:hidden"
+                  initial={false}
+                  animate={
+                    isOpen
+                      ? { height: "auto", opacity: 1 }
+                      : { height: 0, opacity: 0 }
+                  }
+                  transition={{ duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
+                  style={{ overflow: "hidden", maxWidth: "52ch" }}
+                >
+                  {s.body.map((p, j) => (
+                    <p key={j} className="text-base leading-[1.75]" style={{ color: "var(--text-muted)", paddingBottom: "0.25rem" }}>
+                      {p}
+                    </p>
+                  ))}
+                </motion.div>
 
-                {/* Continue Journey — mobile quest control (reveals the next level) */}
-                {i === revealed - 1 && i < TOTAL - 1 && (
-                  <button
-                    type="button"
-                    className="inline-flex items-center"
-                    onClick={() => {
-                      setRevealed(i + 2);
-                      setMobileOpen(i + 1);
-                      requestAnimationFrame(() => {
-                        const next = chapterRefs.current[i + 1];
-                        if (next) window.scrollTo({ top: next.getBoundingClientRect().top + window.scrollY - 120, behavior: prefersReduced ? "auto" : "smooth" });
-                      });
-                    }}
-                    style={{
-                      marginTop: "1.6rem", gap: "0.5rem",
-                      padding: "0.7rem 1.2rem", borderRadius: "999px", cursor: "pointer",
-                      background: s.accent, color: "#FFFFFF", border: "none",
-                      fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.85rem",
-                      boxShadow: `0 10px 24px ${s.accent}44`,
-                    }}
-                  >
-                    Continue Journey
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  </button>
-                )}
-
-                </div>{/* /expandable content */}
               </motion.article>
               );
             })}
@@ -497,7 +474,7 @@ export function Story() {
 
         {/* ── Finale ────────────────────────────────────────────────────── */}
         <motion.div
-          className={`mt-[clamp(3rem,7vw,7rem)] flex-col items-center text-center lg:flex ${revealed >= TOTAL ? "flex" : "hidden lg:flex"}`}
+          className="mt-[clamp(3rem,7vw,7rem)] flex flex-col items-center text-center"
           initial={!prefersReduced ? { opacity: 0, y: 30 } : false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
