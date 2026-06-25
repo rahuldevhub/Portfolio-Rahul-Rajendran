@@ -541,7 +541,7 @@ export function Story() {
 
           {/* Completion stats */}
           <div className="flex flex-wrap justify-center gap-3" style={{ marginBottom: "1.75rem" }}>
-            {([["5 / 5", "Levels"], ["15", "Skills"], ["Lv 05", "Founder"]] as const).map(([v, l]) => (
+            {([["5 / 5", "Levels"], ["15", "Skills"], ["Lv 05", "Builder"]] as const).map(([v, l]) => (
               <div key={l} style={{
                 padding: "0.55rem 1rem", borderRadius: "12px", minWidth: "84px",
                 background: "rgba(255,255,255,0.7)", border: "1px solid var(--border)",

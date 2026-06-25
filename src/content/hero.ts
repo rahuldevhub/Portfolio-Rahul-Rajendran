@@ -27,7 +27,7 @@ export const hero = {
   /** Compact professional identity — answers who / what / looking-for at a glance.
    *  Roles render stacked; an "@ Org" suffix is de-emphasized to preserve weight. */
   identity: {
-    roles: ["Product Builder", "Full-Stack Engineer", "Founder @ Ritera Publishing"],
+    roles: ["Product Builder", "Full-Stack Engineer"],
     location: "India · Remote-friendly",
     openTo: "Product Engineering · Founding Engineer · Startup roles",
     /** Drop the file at /public/<this path>. Update if renamed. */
