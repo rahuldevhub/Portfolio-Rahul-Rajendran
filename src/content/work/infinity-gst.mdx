@@ -1,0 +1,202 @@
+export const meta = {
+  title: "LedgerFlow",
+  description:
+    "A business operating system, built from scratch, to manage the complete lifecycle of revenue, compliance, and cash flow.",
+  category: "Product · Design · Engineering",
+  year: 2025,
+  outcome: "One source of truth — from the first quotation sent to the final GST return filed.",
+};
+
+Most businesses don't struggle with GST. They struggle with disconnected workflows.
+
+Quotations live in one tool. Invoices in another. Expenses in a spreadsheet. GST gets calculated at month-end. So I built **LedgerFlow** — a single system that connects the entire financial lifecycle, from the first quotation sent to the final return filed — for a real business, **Infinity Enterprises**, running two brands under one registration.
+
+## The problem
+
+Running the business meant moving the same data across half a dozen tools:
+
+- Creating quotations by hand
+- Converting them into invoices
+- Tracking payments separately
+- Recording expenses somewhere else
+- Calculating GST at month-end
+- Preparing returns in spreadsheets
+
+Every step duplicated information. Every month required reconciliation. The business had data everywhere — and no single source of truth.
+
+---
+
+## The system
+
+One data model. Every document downstream is generated from it — a quotation becomes a proforma, a proforma becomes a payment receipt, a receipt becomes a tax invoice, and every rupee rolls up into cash flow and GST automatically.
+
+<Flow
+  steps={[
+    { label: "Quotation", note: "Deal starts" },
+    { label: "Proforma Invoice", note: "Terms agreed" },
+    { label: "Payment Receipt", note: "Money in" },
+    { label: "Tax Invoice", note: "GST-compliant" },
+    { label: "Expenses", note: "ITC tracked" },
+    { label: "Cash Flow", note: "Live position" },
+    { label: "GST Summary", note: "Auto-computed" },
+    { label: "GST Filing", note: "GSTR-1 / 3B" },
+  ]}
+/>
+
+No duplicate entry. No manual reconciliation. Each stage inherits the data from the one before it — which is exactly why the whole thing can roll up into a single live view.
+
+<MacWindow
+  src="/work/infinity-gst/dashboard.png"
+  label="LedgerFlow — dashboard: revenue, expenses, GST payable, monthly charts"
+  aspect="16/10"
+  variant="browser"
+  url="infinity-finance.vercel.app"
+  caption="The dashboard — revenue, GST collected, ITC, net payable, and business health in one view"
+/>
+
+The system is built on three ideas:
+
+<Cards>
+  <Card index="01" title="Document lifecycle" desc="Quotations, proformas, receipts, and tax invoices aren't separate tools — they're stages of one record that flows forward." />
+  <Card index="02" title="Compliance by design" desc="GST isn't a month-end report. Place-of-supply rules live in the data model, so tax is correct on every line the moment it's entered." />
+  <Card index="03" title="Multi-brand architecture" desc="Ritera Publishing and Ratix Info Tech operate under a single GSTIN — shared compliance, separate identities, one source of truth." />
+</Cards>
+
+---
+
+## What I built
+
+Designed, engineered, tested, and deployed end to end:
+
+<Scope
+  items={[
+    "Multi-brand financial architecture",
+    "Quotation management system",
+    "Proforma invoice workflow",
+    "GST-compliant tax invoicing",
+    "Payment receipt generation",
+    "Expense management with ITC tracking",
+    "Cash-flow analytics",
+    "GST computation engine",
+    "Monthly GST filing assistant",
+    "PDF generation pipeline",
+    "Role-based authentication",
+    "Installable PWA deployment",
+  ]}
+/>
+
+> This project was researched, designed, engineered, tested, and deployed entirely by me — from GST rules and document workflows to database design, PDF generation, dashboard analytics, and deployment infrastructure. Every layer, built from scratch.
+
+---
+
+## Quotation to tax invoice
+
+The document pipeline is the heart of the system. A quotation isn't a dead-end PDF — it carries forward. Win the deal and it becomes a proforma; collect payment and it becomes a receipt; close it out and it becomes a GST tax invoice. The client, line items, place of supply, and tax treatment travel with it the whole way.
+
+<MacWindow
+  label="LedgerFlow — quotation builder: client, line items, GST, place of supply, terms"
+  aspect="16/10"
+  variant="browser"
+  url="infinity-finance.vercel.app/quotations/new"
+  caption="Quotation builder — dynamic line items, GST options, place of supply, and terms · screenshot to be added"
+/>
+
+<MacWindow
+  label="LedgerFlow — documents list: quotations converting into proformas, receipts, invoices"
+  aspect="16/10"
+  variant="browser"
+  url="infinity-finance.vercel.app/quotations"
+  caption="Documents flow forward — one record moves from quotation to tax invoice · screenshot to be added"
+/>
+
+---
+
+## The GST engine
+
+This is the part that has to be exactly right. Get the tax logic wrong and you mis-charge every single transaction.
+
+<Cards>
+  <Card tag="Place of supply" title="CGST + SGST vs IGST" desc="Business state is Tamil Nadu (33). Intra-state sales split into CGST + SGST; inter-state sales charge IGST. Decided per invoice from the client's state." />
+  <Card tag="Input credit" title="Live net payable" desc="Every expense is flagged for ITC eligibility, so output tax minus input credit is always current — never reconstructed at filing time." />
+  <Card tag="Returns" title="B2B vs B2C split" desc="The summary separates registered-client sales from consumer sales — exactly the shape GSTR-1 and GSTR-3B expect." />
+</Cards>
+
+<MacWindow
+  src="/work/infinity-gst/gst-summary.png"
+  label="LedgerFlow — GST summary: output/input tax, CGST, SGST, IGST breakdown"
+  aspect="16/10"
+  caption="GST summary — auto-calculated output vs input tax, broken out by CGST · SGST · IGST"
+/>
+
+Month-end is where it pays off: the filing assistant assembles GSTR-1 and GSTR-3B data, runs a pre-filing checklist, and exports a CSV to hand to a CA — no spreadsheet, no reconciliation.
+
+<MacWindow
+  src="/work/infinity-gst/gst-filing.png"
+  label="LedgerFlow — GST filing helper: GSTR-1 / GSTR-3B, B2B vs B2C, CSV export"
+  aspect="16/10"
+  variant="browser"
+  url="infinity-finance.vercel.app/gst-filing"
+  caption="Filing assistant — GSTR-1 & GSTR-3B data, B2B/B2C split, and one-click CSV export"
+/>
+
+---
+
+## Cash flow & analytics
+
+Because every invoice, expense, and receipt lands in one place, the business gets something it never had before: a live view of money in, money out, and net position — every transaction tagged to a sub-brand.
+
+<MacWindow
+  src="/work/infinity-gst/cash-flow.png"
+  label="LedgerFlow — cash flow: money in/out, net profit, sub-brand-tagged transactions"
+  aspect="16/10"
+  variant="browser"
+  url="infinity-finance.vercel.app/cash-flow"
+  caption="Cash flow — daily in/out, net position, and every transaction tagged to a sub-brand"
+/>
+
+---
+
+## Small decisions that matter
+
+The difference between a CRUD app and a real product lives in details no one asks for:
+
+- **Invoice numbering** follows a strict `INF-YYYY-XXXX` format — auto-incremented, but manually overridable to fill a gap.
+- **Amount-to-words** in Indian numbering (lakhs, crores) on every PDF, because a legal invoice requires it.
+- **Bill evidence** is scoped per-record in private storage with row-level security — not a shared dumping ground.
+- **No public signup.** Accounts are provisioned manually with `owner` / `ceo` roles. This is internal financial infrastructure, not a consumer app.
+
+---
+
+## Result
+
+<Checklist>
+  <Check>One source of truth — quotations, invoices, receipts, expenses, and returns in a single system.</Check>
+  <Check>Every document generated from one data model — zero duplicate entry, zero reconciliation.</Check>
+  <Check>GST computed automatically on every transaction — output tax, ITC, and net payable, live.</Check>
+  <Check>Filing-ready GSTR-1 and GSTR-3B exports each month — without touching a spreadsheet.</Check>
+  <Check>Running in production for a real, two-brand business.</Check>
+</Checklist>
+
+---
+
+## Building financial infrastructure
+
+**In financial software, correctness is the entire product.** A CRM can ship with rough edges; a GST app cannot mis-split a single tax line. Encoding the place-of-supply rules into the data model — rather than trusting a user to pick the right tax — was the decision that made everything downstream trustworthy. The schema enforces the law, not the user.
+
+**The product is the connection, not the features.** Plenty of tools generate invoices. The value here was that a quotation *becomes* an invoice *becomes* a GST return without anyone re-entering data. Designing one record that flows through the whole business is harder than building ten isolated screens — and it's the only thing that removes reconciliation.
+
+**Compliance is a UX problem, not just a legal one.** The real win wasn't *computing* GST — it was making month-end feel like exporting a file instead of dreading a deadline. All the hard engineering exists to make the human's job boring: the difficult part should be invisible, and the stressful part should disappear.
+
+<BuiltWith
+  items={[
+    "React",
+    "TypeScript",
+    "Vite",
+    "Supabase",
+    "PostgreSQL + RLS",
+    "Tailwind CSS v4",
+    "Recharts",
+    "react-pdf",
+    "PWA",
+  ]}
+/>
