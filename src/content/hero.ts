@@ -169,8 +169,8 @@ export const skillCards: SkillCard[] = [
 // Credibility-driven metrics (replaces vanity stats). ⚠️ Confirm the exact
 // numbers are accurate before publishing — these are claims about real work.
 export const statsBar: StatItem[] = [
-  { icon: "Rocket",   value: "75+",     label: "Projects Shipped",   color: "#2563EB" },
-  { icon: "Zap",      value: "160+",    label: "Countries Reached",  color: "#8B5CF6" },
+  { icon: "Rocket",   value: "40+",     label: "Projects Shipped",   color: "#2563EB" },
+  { icon: "Zap",      value: "2+",      label: "Years Building",     color: "#8B5CF6" },
   { icon: "BookOpen", value: "Founder", label: "Ritera Publishing",  color: "#059669" },
-  { icon: "Target",   value: "10+",     label: "Countries Served",   color: "#E11D48" },
+  { icon: "Target",   value: "Global",  label: "Clients Served",     color: "#E11D48" },
 ];
