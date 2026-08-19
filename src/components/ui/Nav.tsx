@@ -118,8 +118,7 @@ export function Nav() {
             aria-label="Primary navigation"
           >
             {NAV_ITEMS.map(({ label, href }) => {
-              // Default to "Story" active when no section is intersecting (top of page)
-              const isActive = (activeSection ?? "#story") === href;
+              const isActive = activeSection === href;
               return (
                 <a
                   key={href}

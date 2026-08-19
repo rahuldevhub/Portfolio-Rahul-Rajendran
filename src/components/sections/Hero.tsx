@@ -883,16 +883,16 @@ export function Hero() {
                 variants={STAGGER.item}
                 className="flex items-stretch"
                 style={{
-                  gap: "1rem",
-                  padding: "0.85rem 1.1rem",
-                  borderRadius: "16px",
+                  gap: "0.85rem",
+                  padding: "0.6rem 1rem",
+                  borderRadius: "14px",
                   background: "rgba(255,255,255,0.7)",
                   border: "1px solid var(--border)",
                   boxShadow: "0 8px 22px rgba(0,0,0,0.04)",
                 }}
               >
-                {/* Left column — roles */}
-                <span className="flex flex-col justify-center" style={{ gap: "0.05rem" }}>
+                {/* Left column — roles (fixed width, never shrinks/wraps) */}
+                <span className="flex flex-col justify-center" style={{ gap: "0.05rem", flexShrink: 0, whiteSpace: "nowrap" }}>
                   {hero.identity.roles.map((role) => {
                     const [main, org] = role.split(" @ ");
                     // The line with an org (Founder @ Ritera) is the standout —
@@ -903,9 +903,9 @@ export function Hero() {
                         style={{
                           fontFamily: "var(--font-display)",
                           fontWeight: 700,
-                          fontSize: org ? "0.86rem" : "0.82rem",
+                          fontSize: org ? "0.86rem" : "0.8125rem",
                           color: org ? "var(--accent)" : "var(--text)",
-                          lineHeight: 1.4,
+                          lineHeight: 1.35,
                           letterSpacing: "-0.01em",
                         }}
                       >
@@ -921,18 +921,22 @@ export function Hero() {
                 {/* Vertical divider */}
                 <span aria-hidden="true" style={{ width: 1, alignSelf: "stretch", background: "var(--border)", flexShrink: 0 }} />
 
-                {/* Right column — availability */}
-                <span className="flex flex-col justify-center" style={{ gap: "0.3rem" }}>
-                  <span className="inline-flex items-center gap-2" style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontFamily: "var(--font-display)" }}>
+                {/* Right column — availability (takes remaining width) */}
+                <span className="flex flex-col justify-center" style={{ gap: "0.22rem", flex: 1, minWidth: 0 }}>
+                  <span className="inline-flex items-start gap-1.5" style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontFamily: "var(--font-display)", lineHeight: 1.4 }}>
                     <motion.span
                       aria-hidden="true"
                       animate={!prefersReduced ? { opacity: [1, 0.4, 1] } : {}}
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      style={{ width: 7, height: 7, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.18)", flexShrink: 0 }}
+                      style={{ width: 7, height: 7, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.18)", flexShrink: 0, marginTop: "0.3em" }}
                     />
-                    <span><span style={{ color: "var(--text)", fontWeight: 600 }}>Open to</span>&nbsp; {hero.identity.openTo}</span>
+                    <span>
+                      <span style={{ color: "var(--text)", fontWeight: 600 }}>Open to</span>
+                      {" "}
+                      {hero.identity.openTo.replace("Founding Engineer", "Founding Engineer")}
+                    </span>
                   </span>
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", opacity: 0.8 }}>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", opacity: 0.75 }}>
                     {hero.identity.location}
                   </span>
                 </span>

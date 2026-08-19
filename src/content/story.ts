@@ -29,10 +29,10 @@ export const storyStages: StoryStage[] = [
     level: "01",
     phase: "Freelancer",
     accent: "#6B6B70",
-    unlock: "Said yes to everything.",
-    heading: "Started by saying yes to everything.",
+    unlock: "Said yes. Figured it out later.",
+    heading: "I said yes first. Figured out how later.",
     body: [
-      "Websites, logos, decks, campaigns — whatever the brief, I found a way through it. Most problems turned out not to be technical. They were about understanding what someone actually needs versus what they think they're asking for. Saying yes to the wrong things taught me exactly what the right things look like.",
+      "A website? Sure. A logo? Sure. A slide deck due tomorrow? Apparently, also sure. Every brief taught me something different — how to talk to clients, how to read a messy request for what it actually meant, how to solve problems that had nothing to do with code. Saying yes to things I wasn't ready for was the fastest way to get ready.",
     ],
     skills: ["Communication", "Client Handling", "Problem Solving"],
   },
@@ -41,10 +41,10 @@ export const storyStages: StoryStage[] = [
     level: "02",
     phase: "Designer",
     accent: "#8B5CF6",
-    unlock: "Fell for how things feel.",
+    unlock: "Started caring how things feel.",
     heading: "Then I became obsessed with how things feel.",
     body: [
-      "Design revealed that the interface is never just visual — it's a system of invisible decisions about what matters and what doesn't. Every layout, every label, every transition. The pixel that moves 2px in the right direction and makes everything click.",
+      "Design was the first time I noticed how much a layout, a label, or a transition could change how something feels — not just how it looks. I started arguing with pixels. Unfortunately, the pixels usually won. That's when I stopped thinking about products as a list of features and started thinking about how they feel to use.",
     ],
     skills: ["UX Thinking", "Design Systems", "Visual Hierarchy"],
   },
@@ -53,10 +53,10 @@ export const storyStages: StoryStage[] = [
     level: "03",
     phase: "Developer",
     accent: "#2563EB",
-    unlock: "Learned to ship.",
+    unlock: "Learned to actually ship.",
     heading: "Beautiful mockups were not enough.",
     body: [
-      "I wanted to build the thing — not just prototype, actually ship. The gap between a beautiful mockup and a working product is where most ideas quietly die. Once you've shipped something real, you can never design the same way again. You start designing for the engineer, not just the eye.",
+      "I could design something. But at some point I wanted to make the actual thing work, not just look like it worked. Turns out a Figma prototype doesn't care about your deadline. So I learned React, learned enough backend to be dangerous, and learned what it actually takes to ship something and keep it alive. Once you've shipped something real, you can't design the same way again — you start designing for the engineer, not just the eye.",
     ],
     skills: ["React", "Backend", "Deployment"],
   },
@@ -65,10 +65,10 @@ export const storyStages: StoryStage[] = [
     level: "04",
     phase: "Product Builder",
     accent: "#D97706",
-    unlock: "Connected everything.",
-    heading: "The job was never any one of those things.",
+    unlock: "Stopped separating the layers.",
+    heading: "I stopped asking what to build.",
     body: [
-      "Strategy informing design informing engineering informing growth — all as one continuous thought. When you hold all of it at once, you stop optimizing for the layer and start optimizing for the outcome. Not a role. Not a title. A way of thinking.",
+      "Strategy, design, engineering, growth — I used to think of these as separate jobs. At some point they stopped feeling that way. Eventually, I stopped asking \"What should I build?\" and started asking \"What actually needs to exist?\" That's a different question, and it changes everything below it. You stop optimizing for the layer and start optimizing for the outcome. Not a role. Not a title. Just how I think now.",
     ],
     skills: ["Product Thinking", "Strategy", "Prioritization"],
   },
@@ -77,10 +77,10 @@ export const storyStages: StoryStage[] = [
     level: "05",
     phase: "Builder",
     accent: "#6D5EF8",
-    unlock: "Every layer became one system.",
-    heading: "Now everything I learned works together.",
+    unlock: "All of it, finally, one system.",
+    heading: "Turns out, none of those versions of me were wasted.",
     body: [
-      "The freelancer who figured out scope. The designer who systemized taste. The developer who learned to ship. The product thinker who learned to prioritize. Every layer merged into one way of working — building end-to-end products with a clear point of view.",
+      "The freelancer who learned to listen and figure out scope. The designer who learned to care about how things feel. The developer who learned to actually ship. The product thinker who learned to prioritize. I stopped trying to be just one of them. Turns out you don't have to — you just bring all of them to the same table.",
     ],
     skills: ["Vision", "Ownership", "Conviction"],
   },
@@ -89,11 +89,11 @@ export const storyStages: StoryStage[] = [
 export const storySectionIntro = {
   eyebrow: "The Arc",
   headline: "Evolution of a\nProduct Builder",
-  subtitle: "I wasn't chasing titles. I was solving the next problem.",
+  subtitle: "I didn't really plan to become a Product Builder. I just kept saying yes to problems I probably shouldn't have.",
 };
 
 export const storyFinale = {
-  lead: "Not a designer. Not just a developer.",
+  lead: "I stopped trying to pick one title. Not a designer. Not just a developer.",
   emphasis: "A product builder.",
   cta: { label: "See My Work", href: "#work" },
 };

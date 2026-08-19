@@ -50,12 +50,55 @@ export interface SelectedWorkItem {
 export interface WorkCategoryData {
   id: string;
   label: string;
+  /** Full heading shown above the section itself (falls back to `label`) */
+  sectionTitle?: string;
   description: string;
   gridStyle: GridStyle;
   /** Workspace identity — colored tab dot + the section's ambient glow */
   tint: { dot: string; glowA: string; glowB: string };
   items: SelectedWorkItem[];
 }
+
+/**
+ * AR / Spatial — NDA credibility card.
+ * Some Snapchat/AR work was built under NDA and can't be shown publicly.
+ * This is a tasteful proof-of-work note, not a dead end — it points to a
+ * conversation instead of a screenshot.
+ */
+export interface ArNdaNote {
+  eyebrow: string;
+  heading: string;
+  body: string;
+  meta: { studio: string; platform: string };
+  cta: { label: string; href: string };
+}
+
+export const arNdaNote: ArNdaNote = {
+  eyebrow: "Also Shipped",
+  heading: "Some of it can't be shown here.",
+  body: "AR / Snapchat work with RBKavin Studio — some of it's under NDA. That's usually a good sign.",
+  meta: { studio: "RBKavin Studio", platform: "Snapchat" },
+  cta: { label: "Ask me about it", href: "#contact" },
+};
+
+/**
+ * Publishing — compact summary strip shown above the (deliberately smaller)
+ * Publishing grid. Reuses the 160+ countries figure already published in the
+ * Hero stats bar — not a new claim.
+ */
+export interface PublishingSummary {
+  eyebrow: string;
+  heading: string;
+  body: string;
+  stat: { value: string; label: string };
+}
+
+export const publishingSummary: PublishingSummary = {
+  eyebrow: "Ritera Publishing",
+  heading: "Another layer of what I've built.",
+  body: "Publishing products and books I've worked on have reached readers across 160+ countries.",
+  stat: { value: "160+", label: "Countries reached" },
+};
 
 /**
  * Creative Works — lighter, experimental companion grid shown after the
@@ -118,6 +161,7 @@ export const workCategories: WorkCategoryData[] = [
   {
     id: "product-engineering",
     label: "Product Engineering",
+    sectionTitle: "Product Engineering",
     description:
       "Full-stack products built end-to-end — from problem framing to production.",
     gridStyle: "editorial",
@@ -207,13 +251,15 @@ export const workCategories: WorkCategoryData[] = [
   {
     id: "ar",
     label: "AR Experiences",
+    sectionTitle: "AR / Spatial Experiences",
     description:
-      "Immersive augmented reality for retail, architecture, and brand storytelling.",
+      "Immersive augmented reality for retail, architecture, and brand storytelling — public work, plus AR I've shipped under NDA.",
     gridStyle: "showcase",
     tint: { dot: "#6D5EF8", glowA: "rgba(109,94,248,0.09)", glowB: "rgba(34,211,238,0.06)" },
     items: [
       {
         id: "ar-spatial-retail",
+        slug: "ar-spatial-retail",
         title: "Spatial Retail",
         description:
           "Interactive AR product try-on for e-commerce — visualize an item in your own space before you buy.",
@@ -226,6 +272,7 @@ export const workCategories: WorkCategoryData[] = [
       },
       {
         id: "ar-arch-viz",
+        slug: "ar-arch-viz",
         title: "Architecture Viz",
         description:
           "Real-time AR walkthroughs for architectural projects — place a full building into any physical space.",
@@ -238,6 +285,7 @@ export const workCategories: WorkCategoryData[] = [
       },
       {
         id: "ar-brand-lens",
+        slug: "ar-brand-lens",
         title: "Brand Lens",
         description:
           "Custom AR filters and interactive lenses for brand campaigns — built for reach, not gimmick.",
@@ -253,6 +301,7 @@ export const workCategories: WorkCategoryData[] = [
   {
     id: "publishing",
     label: "Publishing",
+    sectionTitle: "Publishing",
     description:
       "A full publishing operation — from a repeatable cover system to print-ready interiors and the workflow that ships them.",
     gridStyle: "showcase",

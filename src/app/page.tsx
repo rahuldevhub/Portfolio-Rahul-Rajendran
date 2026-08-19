@@ -18,6 +18,9 @@ export default function HomePage() {
       {/* Story — "Evolution of a Product Builder" RPG journey */}
       <Story />
 
+      {/* Work — tabbed by category */}
+      <SelectedWork />
+
       {/* Beliefs — "My Operating System" philosophy deck */}
       <Beliefs />
 
@@ -26,9 +29,6 @@ export default function HomePage() {
 
       {/* Operator Stack — "System Architecture" signal cascade */}
       <OperatorStack />
-
-      {/* Work — tabbed by category */}
-      <SelectedWork />
 
       {/* AI — "AI Operations" command center */}
       <AISection />

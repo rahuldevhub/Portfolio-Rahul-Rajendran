@@ -31,9 +31,12 @@ import {
   workCategories,
   creativeWorks,
   creativeWorksIntro,
+  arNdaNote,
+  publishingSummary,
   type SelectedWorkItem,
   type WorkMetric,
   type CreativeWorkItem,
+  type WorkCategoryData,
 } from "@/content/selected-work";
 
 /* ── Shared card transition ─────────────────────────────────────────────── */
@@ -41,6 +44,23 @@ const CARD_TRANSITION = {
   type: "tween" as const,
   duration: 0.6,
   ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+};
+
+/* ── AR / Spatial theme — the one deliberate departure from the site's
+ *    off-white system. Section-scoped only (inline styles, not CSS vars),
+ *    so nothing outside this part of the Work page is affected. "Snapchat
+ *    energy" — near-black surface, white type, a restrained yellow accent —
+ *    without literally reusing Snapchat's UI or brand assets. ────────────── */
+const AR_THEME = {
+  bg: "#08080B",
+  surface: "rgba(255,255,255,0.04)",
+  border: "rgba(255,255,255,0.12)",
+  borderStrong: "rgba(255,255,255,0.22)",
+  text: "#F6F6F2",
+  textMuted: "rgba(246,246,242,0.62)",
+  yellow: "#F4E409",
+  yellowSoft: "rgba(244,228,9,0.14)",
+  yellowMuted: "rgba(244,228,9,0.58)",
 };
 
 /* ── Editorial shared pieces ────────────────────────────────────────────── */
@@ -591,28 +611,21 @@ function ChapterRail({
   active,
   visible,
   progress,
-  creativeActive,
 }: {
   items: SelectedWorkItem[];
   active: number;
   visible: boolean;
   progress: MotionValue<number>;
-  creativeActive: boolean;
 }) {
-  // Rail nodes = the flagship projects plus a final "Creative" destination so
-  // the timeline resolves somewhere instead of trailing off after TrackPWD.
-  const nodes = [
-    ...items.map((it) => ({ key: it.id, label: it.title, creative: false })),
-    { key: "creative", label: "Creative", creative: true },
-  ];
-  const creativeIndex = items.length;
-  // Effective active index — jumps to the Creative node once it's in view.
-  const effective = creativeActive ? creativeIndex : active;
+  // Rail nodes = the three flagship projects. (Previously a trailing
+  // "Creative" destination node topped the rail off, back when Creative
+  // Works tucked in directly under this deck — that companion section has
+  // since moved into its own "Selected Supporting Work" part of the page,
+  // so the rail now just resolves at the last project, same as the fill.)
+  const nodes = items.map((it) => ({ key: it.id, label: it.title, creative: false as const }));
+  const effective = active;
 
-  // During the deck, the smooth fill should reach the last project node
-  // (fraction (n-1)/n of the track); the Creative node tops it off at 100%.
-  const deckMax = `${((items.length - 1) / items.length) * 100}%`;
-  const fillHeight = useTransform(progress, [0, 1], ["0%", deckMax]);
+  const fillHeight = useTransform(progress, [0, 1], ["0%", "100%"]);
 
   return (
     <div
@@ -632,7 +645,7 @@ function ChapterRail({
           style={{
             left: 6,
             top: 10,
-            height: creativeActive ? "calc(100% - 20px)" : fillHeight,
+            height: fillHeight,
             maxHeight: "calc(100% - 20px)",
             backgroundColor: "var(--accent)",
             transition: "height 0.45s ease",
@@ -652,28 +665,13 @@ function ChapterRail({
                   height: 14,
                   borderRadius: "50%",
                   flexShrink: 0,
-                  // The Creative destination reads as a hollow ring target when
-                  // current, distinguishing the category from the projects.
-                  backgroundColor: node.creative
-                    ? current
-                      ? "var(--surface)"
-                      : "var(--surface)"
-                    : filled
-                      ? "var(--accent)"
-                      : "var(--surface)",
-                  border: node.creative
-                    ? `2px solid ${current ? "var(--accent)" : "var(--border)"}`
-                    : filled
-                      ? "none"
-                      : "1.5px solid var(--border)",
+                  backgroundColor: filled ? "var(--accent)" : "var(--surface)",
+                  border: filled ? "none" : "1.5px solid var(--border)",
                   boxShadow: current ? "0 0 0 4px rgba(43,107,255,0.16)" : "none",
                   transition: "all 0.35s ease",
                 }}
               >
-                {node.creative && current && (
-                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--accent)" }} />
-                )}
-                {!node.creative && done && (
+                {done && (
                   <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
                     <path d="M2 5.2l2 2 4-4.4" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -703,13 +701,7 @@ function ChapterRail({
 /* ── Pinned crossfade deck — only mounted on wide screens. Isolated so the
  *    useScroll target ref is always attached to a live DOM node (mounting it
  *    conditionally in the parent left the ref un-hydrated → motion error). ── */
-function PinnedDeck({
-  items,
-  creativeInView,
-}: {
-  items: SelectedWorkItem[];
-  creativeInView: boolean;
-}) {
+function PinnedDeck({ items }: { items: SelectedWorkItem[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const inView = useInView(containerRef, { margin: "-25% 0px -25% 0px" });
@@ -721,8 +713,13 @@ function PinnedDeck({
   });
 
   // Active chapter = which third of the deck's scroll range we're in.
+  // nearEnd hides the rail slightly before the deck's sticky positioning
+  // actually releases (rather than only on the coarser inView check), so
+  // the fixed rail doesn't linger floating over the AR section that follows.
+  const [nearEnd, setNearEnd] = useState(false);
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     setActive(Math.min(items.length - 1, Math.max(0, Math.floor(v * items.length))));
+    setNearEnd(v > 0.92);
   });
 
   return (
@@ -730,9 +727,8 @@ function PinnedDeck({
       <ChapterRail
         items={items}
         active={active}
-        visible={inView || creativeInView}
+        visible={inView && !nearEnd}
         progress={scrollYProgress}
-        creativeActive={creativeInView}
       />
       {/* Tall scroll track gives each chapter a full viewport of dwell time. */}
       <div ref={containerRef} className="relative" style={{ height: `${items.length * 100}vh` }}>
@@ -758,13 +754,7 @@ function PinnedDeck({
  *    The pinned crossfade deck only makes sense on wide screens where the
  *    side-by-side card fits one viewport. On narrow screens (or reduced-motion)
  *    a card is taller than the viewport, so we fall back to a vertical stack. */
-function EditorialGrid({
-  items,
-  creativeInView,
-}: {
-  items: SelectedWorkItem[];
-  creativeInView: boolean;
-}) {
+function EditorialGrid({ items }: { items: SelectedWorkItem[] }) {
   const shouldReduce = useReducedMotion();
   const [isWide, setIsWide] = useState(false);
 
@@ -786,7 +776,7 @@ function EditorialGrid({
     );
   }
 
-  return <PinnedDeck items={items} creativeInView={creativeInView} />;
+  return <PinnedDeck items={items} />;
 }
 
 /* ── Showcase visual — per-item mini-mockup for the AR & Publishing tabs ─────
@@ -975,23 +965,20 @@ function ShowcaseVisual({ item }: { item: SelectedWorkItem }) {
 /* ── Showcase grid (AR & Publishing) — large glowing preview cards ───────────
  *    Replaces the old video/screen/book grids. Each card: a large built
  *    preview with the item's accent glow, then category / title / description.
- *    No timeline — that's exclusive to the Product Engineering tab. ────────── */
-function ShowcaseGrid({ items }: { items: SelectedWorkItem[] }) {
+ *    No timeline — that's exclusive to the Product Engineering deck.
+ *    `compact` shrinks the preview + type scale for lower-priority sections
+ *    (Publishing) without duplicating the component. Cards with a `slug`
+ *    become links to /work/[slug]; cards without one stay presentational. ─── */
+function ShowcaseGrid({ items, theme = "light" }: { items: SelectedWorkItem[]; theme?: "light" | "dark" }) {
   const shouldReduce = useReducedMotion();
+  const dark = theme === "dark";
   return (
     <div className="grid grid-cols-1 gap-x-7 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item, i) => {
         const a = item.accent ?? { glowA: "rgba(43,107,255,0.9)", glowB: "rgba(109,94,248,0.9)" };
-        return (
-          <motion.div
-            key={item.id}
-            initial={shouldReduce ? false : { opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ ...CARD_TRANSITION, delay: i * 0.1 }}
-          >
-            <div className="group">
-              {/* Large preview with ambient glow */}
+        const cardBody = (
+          <>
+              {/* Preview with ambient glow */}
               <div className="relative mb-4">
                 <div
                   aria-hidden="true"
@@ -1002,12 +989,16 @@ function ShowcaseGrid({ items }: { items: SelectedWorkItem[] }) {
                   }}
                 />
                 <div
-                  className="overflow-hidden rounded-[var(--radius-lg)] border"
+                  className="overflow-hidden rounded-[var(--radius-lg)] border transition-colors duration-300"
                   style={{
-                    borderColor: "var(--border)",
+                    borderColor: dark ? AR_THEME.border : "var(--border)",
                     aspectRatio: "4 / 3",
-                    boxShadow: "0 2px 8px rgba(10,10,11,0.05), 0 22px 50px -26px rgba(10,10,11,0.2)",
+                    boxShadow: dark
+                      ? "0 2px 8px rgba(0,0,0,0.3), 0 22px 50px -26px rgba(0,0,0,0.5)"
+                      : "0 2px 8px rgba(10,10,11,0.05), 0 22px 50px -26px rgba(10,10,11,0.2)",
                   }}
+                  onMouseEnter={dark ? (e) => { e.currentTarget.style.borderColor = AR_THEME.borderStrong; } : undefined}
+                  onMouseLeave={dark ? (e) => { e.currentTarget.style.borderColor = AR_THEME.border; } : undefined}
                 >
                   <div className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.03]">
                     <ShowcaseVisual item={item} />
@@ -1018,29 +1009,109 @@ function ShowcaseGrid({ items }: { items: SelectedWorkItem[] }) {
               {/* Meta */}
               <p
                 className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.1em]"
-                style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
+                style={{ color: dark ? AR_THEME.yellowMuted : "var(--text-muted)", fontFamily: "var(--font-mono)" }}
               >
                 {item.category}
               </p>
               <h3
-                className="mb-1.5 font-semibold tracking-[-0.014em]"
+                className="mb-1.5 font-semibold tracking-[-0.014em] transition-colors duration-200"
                 style={{
                   fontSize: "clamp(1.05rem, 1.5vw, 1.25rem)",
                   fontFamily: "var(--font-display)",
-                  color: "var(--text)",
+                  color: dark ? AR_THEME.text : "var(--text)",
                   lineHeight: 1.25,
                 }}
+                onMouseEnter={dark ? (e) => { e.currentTarget.style.color = AR_THEME.yellow; } : undefined}
+                onMouseLeave={dark ? (e) => { e.currentTarget.style.color = AR_THEME.text; } : undefined}
               >
                 {item.title}
               </h3>
-              <p className="text-sm leading-[1.6]" style={{ color: "var(--text-muted)", maxWidth: "42ch" }}>
+              <p
+                className="text-sm leading-[1.6]"
+                style={{ color: dark ? AR_THEME.textMuted : "var(--text-muted)", maxWidth: "42ch" }}
+              >
                 {item.description}
               </p>
-            </div>
+          </>
+        );
+        return (
+          <motion.div
+            key={item.id}
+            initial={shouldReduce ? false : { opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ ...CARD_TRANSITION, delay: i * 0.1 }}
+          >
+            {item.slug ? (
+              <Link href={`/work/${item.slug}`} className="group block" style={{ textDecoration: "none" }}>
+                {cardBody}
+              </Link>
+            ) : (
+              <div className="group">{cardBody}</div>
+            )}
           </motion.div>
         );
       })}
     </div>
+  );
+}
+
+/* ── NDA credibility card (AR section) ────────────────────────────────────
+ *    Some AR/Snapchat work shipped under NDA can't be shown publicly. Short
+ *    by design — a credibility signal, not a block of copy — themed to the
+ *    section's dark/yellow identity. CTA routes to Contact, not a case
+ *    study, using the same scrollIntoView pattern as Nav.tsx / Hero.tsx
+ *    (plain hash anchors fight the site's Lenis smooth scroll). ──────────── */
+function NdaCard({ note }: { note: typeof arNdaNote }) {
+  const shouldReduce = useReducedMotion();
+  return (
+    <motion.div
+      initial={shouldReduce ? false : { opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={CARD_TRANSITION}
+      className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-4 rounded-[16px] border px-[clamp(1.25rem,2.5vw,1.75rem)] py-[clamp(1rem,1.8vw,1.25rem)]"
+      style={{ backgroundColor: AR_THEME.surface, borderColor: AR_THEME.border }}
+    >
+      <div className="min-w-0 flex-1">
+        <span
+          className="mb-1.5 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+          style={{ fontFamily: "var(--font-mono)", color: AR_THEME.yellow }}
+        >
+          <span aria-hidden="true" style={{ width: 5, height: 5, borderRadius: "50%", background: AR_THEME.yellow }} />
+          {note.eyebrow}
+        </span>
+        <p className="text-sm leading-[1.5]" style={{ color: AR_THEME.text }}>
+          <span style={{ fontWeight: 600 }}>{note.heading}</span>{" "}
+          <span style={{ color: AR_THEME.textMuted }}>{note.body}</span>
+        </p>
+      </div>
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
+        {[note.meta.studio, note.meta.platform].map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full px-2.5 py-1 text-[11px] font-medium"
+            style={{ color: AR_THEME.textMuted, fontFamily: "var(--font-mono)", border: `1px solid ${AR_THEME.border}` }}
+          >
+            {tag}
+          </span>
+        ))}
+        <a
+          href={note.cta.href}
+          onClick={(e) => {
+            e.preventDefault();
+            document.querySelector(note.cta.href)?.scrollIntoView({ behavior: shouldReduce ? "instant" : "smooth" });
+          }}
+          className="group inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-opacity duration-200 hover:opacity-85"
+          style={{ backgroundColor: AR_THEME.yellow, color: "#0A0A08", fontFamily: "var(--font-display)", textDecoration: "none" }}
+        >
+          {note.cta.label}
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </a>
+      </div>
+    </motion.div>
   );
 }
 
@@ -1247,12 +1318,13 @@ function CreativeCard({
 }
 
 /* ── Creative Works subsection ──────────────────────────────────────────────
- *    Lighter, experimental companion to the flagship deck. Held to ~20% of the
- *    visual weight — compact cards, glass surfaces, no large media.
- *    On wide screens it tucks up under the pinned deck (the deck's last card is
- *    centered, leaving a tall void below it) via a viewport-relative negative
- *    margin, so TrackPWD → Creative reads as one continuous section. ──────── */
-function CreativeWorks({
+ *    No longer rendered in the Work page flow — the 4 creative items now
+ *    live inside the Selected Supporting Work deck instead (see
+ *    SupportingCardView / CreativeThumb below), presented as compact cards
+ *    rather than this larger standalone grid. Kept here, exported rather
+ *    than deleted, since it's a solid self-contained "featured creative
+ *    grid" that may get reused (e.g. in Lab) later. ──────────────────────── */
+export function CreativeWorks({
   sectionRef,
   isWide,
 }: {
@@ -1325,15 +1397,608 @@ function CreativeWorks({
 }
 
 /* ── Main export ────────────────────────────────────────────────────────── */
+/* ── Section intro — reused for all three categories. Each category now
+ *    always renders (continuous scroll), so its own heading + description
+ *    lives inline above its content instead of a single shared blurb. ──────── */
+function SectionIntro({ cat }: { cat: WorkCategoryData }) {
+  return (
+    <div className="mb-8 flex items-baseline gap-3">
+      <span
+        style={{
+          width: 9, height: 9, borderRadius: "50%", flexShrink: 0,
+          backgroundColor: cat.tint.dot, boxShadow: `0 0 0 3px ${cat.tint.dot}22`,
+        }}
+        aria-hidden="true"
+      />
+      <div>
+        <h3
+          className="font-semibold tracking-[-0.02em]"
+          style={{ fontSize: "clamp(1.4rem, 2.2vw, 1.9rem)", fontFamily: "var(--font-display)", color: "var(--text)" }}
+        >
+          {cat.sectionTitle ?? cat.label}
+        </h3>
+        <p className="mt-1.5 text-sm leading-[1.65]" style={{ color: "var(--text-muted)", maxWidth: "56ch" }}>
+          {cat.description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ── AR section decorative marks — subtle hand-drawn yellow annotations that
+ *    fill the section's empty black space with a bit of experimental, Gen-Z
+ *    energy (Snapchat-adjacent, not a Snapchat clone). Pure SVG, no external
+ *    assets. Desktop-only (`hidden lg:block`) and pinned to the outer edges
+ *    so they never compete with the heading, NDA card, or the three project
+ *    cards. Static — no motion, per the site's "no distracting motion" rule. */
+function ArDoodles() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-0 hidden lg:block"
+    >
+      {/* Top-left — loose scribbled circle, near the section eyebrow */}
+      <svg
+        width="72" height="72" viewBox="0 0 72 72" fill="none"
+        style={{ position: "absolute", top: "1.5%", left: "1.2%", opacity: 0.4 }}
+      >
+        <path
+          d="M40 14C26 11 14 20 13 33c-1 14 12 25 26 24 15-1 25-14 22-27C58 17 46 9 34 13"
+          stroke={AR_THEME.yellow} strokeWidth="1.6" strokeLinecap="round" fill="none"
+        />
+      </svg>
+
+      {/* Top-right — curved annotation arrow pointing toward the heading */}
+      <svg
+        width="90" height="70" viewBox="0 0 90 70" fill="none"
+        style={{ position: "absolute", top: "2%", right: "1.5%", opacity: 0.42 }}
+      >
+        <path
+          d="M84 8C64 6 34 16 20 40c-4 7-6 14-5 20"
+          stroke={AR_THEME.yellow} strokeWidth="1.6" strokeLinecap="round" fill="none"
+        />
+        <path
+          d="M8 52l7 10 11-5"
+          stroke={AR_THEME.yellow} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"
+        />
+      </svg>
+
+      {/* Mid-right — AR tracking corner marks, echoing the showcase visuals */}
+      <div style={{ position: "absolute", top: "42%", right: "1%", width: 46, height: 46, opacity: 0.38 }}>
+        {[
+          "left-0 top-0 border-l-2 border-t-2",
+          "right-0 top-0 border-r-2 border-t-2",
+          "left-0 bottom-0 border-l-2 border-b-2",
+          "right-0 bottom-0 border-r-2 border-b-2",
+        ].map((c) => (
+          <span key={c} className={`absolute h-2.5 w-2.5 ${c}`} style={{ borderColor: AR_THEME.yellow }} />
+        ))}
+      </div>
+
+      {/* Bottom-left — small stars + a rough underline squiggle */}
+      <svg
+        width="110" height="60" viewBox="0 0 110 60" fill="none"
+        style={{ position: "absolute", bottom: "3%", left: "1%", opacity: 0.4 }}
+      >
+        <path d="M20 10l2.6 6.4L29 19l-6.4 2.6L20 28l-2.6-6.4L11 19l6.4-2.6L20 10Z" fill={AR_THEME.yellow} opacity="0.85" />
+        <path d="M46 32l1.7 4.2L52 38l-4.3 1.8L46 44l-1.7-4.2L40 38l4.3-1.8L46 32Z" fill={AR_THEME.yellow} opacity="0.65" />
+        <circle cx="66" cy="14" r="2" fill={AR_THEME.yellow} opacity="0.7" />
+        <path
+          d="M8 50c14 5 30 5 44 1 15-4 29-4 40 2"
+          stroke={AR_THEME.yellow} strokeWidth="1.6" strokeLinecap="round" fill="none"
+        />
+      </svg>
+
+      {/* Bottom-right — tiny scattered dots */}
+      <svg
+        width="54" height="54" viewBox="0 0 54 54" fill="none"
+        style={{ position: "absolute", bottom: "4%", right: "2%", opacity: 0.4 }}
+      >
+        <circle cx="8" cy="10" r="2.2" fill={AR_THEME.yellow} />
+        <circle cx="26" cy="4" r="1.6" fill={AR_THEME.yellow} opacity="0.75" />
+        <circle cx="40" cy="20" r="2.6" fill={AR_THEME.yellow} opacity="0.6" />
+        <circle cx="16" cy="30" r="1.4" fill={AR_THEME.yellow} opacity="0.8" />
+      </svg>
+    </div>
+  );
+}
+
+/* ── AR section header — dark theme variant of SectionIntro. Same shape,
+ *    inverted palette; kept separate rather than branching SectionIntro so
+ *    the light-theme header used by Product Engineering stays untouched. ── */
+function ArSectionHeader({ cat }: { cat: WorkCategoryData }) {
+  return (
+    <div className="mb-7 flex items-baseline gap-3">
+      <span
+        style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, backgroundColor: AR_THEME.yellow, boxShadow: `0 0 0 3px ${AR_THEME.yellowSoft}` }}
+        aria-hidden="true"
+      />
+      <div>
+        <h3
+          className="font-semibold tracking-[-0.02em]"
+          style={{ fontSize: "clamp(1.4rem, 2.2vw, 1.9rem)", fontFamily: "var(--font-display)", color: AR_THEME.text }}
+        >
+          {cat.sectionTitle ?? cat.label}
+        </h3>
+        <p className="mt-1.5 text-sm leading-[1.65]" style={{ color: AR_THEME.textMuted, maxWidth: "56ch" }}>
+          {cat.description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ── Selected Supporting Work — sticky, scroll-driven horizontal filmstrip
+ *    (desktop) / touch snap carousel (mobile, reduced-motion). Publishing
+ *    proof + the 3 Publishing craft items + the 4 Creative Works items, in
+ *    one continuous sequence — compact "supporting evidence" cards, deliberately
+ *    smaller than the Product Engineering deck. Reuses ShowcaseVisual and
+ *    CreativeThumb (the existing mini-mockup renderers) rather than inventing
+ *    new artwork. ─────────────────────────────────────────────────────────── */
+type SupportingCard =
+  | { kind: "stat" }
+  | { kind: "publishing"; item: SelectedWorkItem }
+  | { kind: "creative"; item: CreativeWorkItem };
+
+/* ── Gallery card system (More Work) ─────────────────────────────────────────
+ *    One shared shell — radius, outer border, shadow, hover lift, typography
+ *    scale — wrapping three composition templates so the row reads as "one
+ *    art-directed gallery containing eight different projects" rather than
+ *    eight identical dashboard tiles:
+ *      "typographic" — mostly type, giant stat. Used only for Ritera Publishing.
+ *      "visual"      — a large visual (tunable ratio per project) + text panel.
+ *      "overlay"     — full-bleed visual with type over a bottom scrim.
+ *    Reuses the existing ShowcaseVisual / CreativeThumb renderers — no new
+ *    artwork, no invented copy, just more canvas and a bigger type scale. ─── */
+type GalleryVariant = "typographic" | "visual" | "overlay";
+
+interface GalleryContent {
+  variant: GalleryVariant;
+  visualRatio?: number; // "visual" only — visual area as a fraction of card height
+  eyebrow?: string;
+  title: string;
+  description: string;
+  tags?: string[];
+  accent: { from: string; to: string };
+  visual?: React.ReactNode;
+  href?: string;
+  slug?: string;
+}
+
+/* Publishing items carry {glowA, glowB} rather than {from, to} — this is the
+ * same burgundy/gold pairing ShowcaseVisual already renders for the Publishing
+ * category, reused here (not invented) so the stat card matches its siblings. */
+const PUBLISHING_ACCENT = { from: "#962D4B", to: "#D4A03C" };
+
+const VISUAL_RATIOS: Record<string, number> = {
+  "pub-cover-system": 0.64,
+  "pub-interior": 0.66,
+  "pub-workflow": 0.62,
+  "forge-fitness": 0.74, // "let the branding breathe" — the boldest visual card
+  "ritera-landing": 0.62,
+  "micro-ui-concepts": 0.6,
+};
+
+function galleryContentFor(card: SupportingCard): GalleryContent {
+  if (card.kind === "stat") {
+    const s = publishingSummary;
+    return {
+      variant: "typographic",
+      eyebrow: s.eyebrow,
+      title: s.stat.value,
+      description: s.body,
+      accent: PUBLISHING_ACCENT,
+    };
+  }
+
+  if (card.kind === "publishing") {
+    const item = card.item;
+    return {
+      variant: "visual",
+      visualRatio: VISUAL_RATIOS[item.id] ?? 0.64,
+      eyebrow: item.category,
+      title: item.title,
+      description: item.description,
+      accent: item.accent ? { from: item.accent.glowA, to: item.accent.glowB } : PUBLISHING_ACCENT,
+      visual: <ShowcaseVisual item={item} />,
+      slug: item.slug,
+    };
+  }
+
+  // Creative
+  const item = card.item;
+  if (item.id === "personal-brand-experiments") {
+    // No baked-in text in this visual (unlike Forge), and it's dark enough
+    // to carry white overlay type — the one card that earns a true full-bleed
+    // treatment, matching the "experimental / interactive" brief for it.
+    return {
+      variant: "overlay",
+      title: item.title,
+      description: item.subtitle,
+      tags: item.tags,
+      accent: item.accent,
+      visual: <CreativeThumb item={item} />,
+      href: item.href,
+    };
+  }
+  return {
+    variant: "visual",
+    visualRatio: VISUAL_RATIOS[item.id] ?? 0.64,
+    eyebrow: item.tags[0],
+    title: item.title,
+    description: item.subtitle,
+    tags: item.tags.slice(1, 3),
+    accent: item.accent,
+    visual: <CreativeThumb item={item} />,
+    href: item.href,
+  };
+}
+
+/* Typographic body — Ritera Publishing only. A faint baseline-grid texture
+ * (same ruled-line language ShowcaseVisual's cover-system card already uses)
+ * keeps it feeling like this page's Publishing world instead of a bare stat. */
+function TypographicBody({ eyebrow, title, description }: { eyebrow?: string; title: string; description: string }) {
+  return (
+    <div className="relative flex h-full flex-col justify-center overflow-hidden" style={{ padding: "clamp(2rem, 3.4vw, 3.25rem)" }}>
+      <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <g stroke="rgba(150,45,75,0.07)" strokeWidth="0.25">
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+            <line key={i} x1="0" y1={i * 16} x2="100" y2={i * 16} />
+          ))}
+        </g>
+      </svg>
+      <p className="relative mb-3 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+        {eyebrow}
+      </p>
+      <p className="relative font-semibold tabular-nums tracking-[-0.03em]" style={{ fontSize: "clamp(4.25rem, 7.5vw, 6.75rem)", fontFamily: "var(--font-display)", color: "var(--text)", lineHeight: 0.95 }}>
+        {title}
+      </p>
+      <p className="relative mb-4 mt-2 text-[11px] uppercase tracking-[0.1em]" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+        {publishingSummary.stat.label}
+      </p>
+      <p className="relative max-w-[36ch] text-[0.98rem] leading-[1.65]" style={{ color: "var(--text-muted)" }}>
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function GalleryCard({
+  content,
+  isWide,
+  shouldReduce,
+}: {
+  content: GalleryContent;
+  isWide: boolean;
+  shouldReduce: boolean | null;
+}) {
+  const { variant, visualRatio = 0.64, eyebrow, title, description, tags, accent, visual, href, slug } = content;
+
+  const baseShadow = "0 1px 2px rgba(10,10,11,0.04), 0 26px 60px -30px rgba(10,10,11,0.24)";
+  const shellStyle: React.CSSProperties = {
+    width: isWide ? "clamp(560px, 68vw, 1300px)" : "min(88vw, 420px)",
+    height: "clamp(440px, 60vh, 640px)",
+    flexShrink: 0,
+    backgroundColor: variant === "overlay" ? "#0A0A0B" : "var(--bg)",
+    borderColor: "var(--border)",
+    boxShadow: baseShadow,
+    transition: "transform 340ms cubic-bezier(0.16,1,0.3,1), border-color 340ms ease, box-shadow 340ms ease",
+  };
+
+  const onEnter = (e: React.MouseEvent<HTMLElement>) => {
+    if (shouldReduce) return;
+    const el = e.currentTarget;
+    el.style.transform = "translateY(-6px)";
+    el.style.borderColor = accent.from;
+    el.style.boxShadow = `0 32px 68px -26px ${accent.to}66, 0 1px 2px rgba(10,10,11,0.05)`;
+  };
+  const onLeave = (e: React.MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    el.style.transform = "translateY(0)";
+    el.style.borderColor = "var(--border)";
+    el.style.boxShadow = baseShadow;
+  };
+
+  let CardTag: React.ElementType = "div";
+  let tagProps: Record<string, unknown> = {};
+  if (href) {
+    CardTag = "a";
+    tagProps = { href, target: "_blank", rel: "noopener noreferrer" };
+  } else if (slug) {
+    CardTag = Link;
+    tagProps = { href: `/work/${slug}` };
+  }
+
+  return (
+    <CardTag
+      {...tagProps}
+      className="group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border"
+      style={{ ...shellStyle, textDecoration: "none" }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      {variant === "typographic" && <TypographicBody eyebrow={eyebrow} title={title} description={description} />}
+
+      {variant === "visual" && (
+        <>
+          <div className="relative overflow-hidden" style={{ flex: `0 0 ${visualRatio * 100}%` }}>
+            <div className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.035]">
+              {visual}
+            </div>
+          </div>
+          <div className="flex flex-1 flex-col gap-2.5 overflow-hidden" style={{ padding: "clamp(1.4rem, 2.2vw, 2.1rem)" }}>
+            {eyebrow && (
+              <p className="text-[11px] font-medium uppercase tracking-[0.1em]" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                {eyebrow}
+              </p>
+            )}
+            <h4
+              className="font-semibold leading-[1.18] tracking-[-0.015em]"
+              style={{ fontSize: "clamp(1.3rem, 1.9vw, 1.7rem)", fontFamily: "var(--font-display)", color: "var(--text)" }}
+            >
+              {title}
+            </h4>
+            <p className="line-clamp-3 text-[0.94rem] leading-[1.6]" style={{ color: "var(--text-muted)" }}>
+              {description}
+            </p>
+            {tags && tags.length > 0 && (
+              <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.06em]"
+                    style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", background: "rgba(10,10,11,0.04)", border: "1px solid var(--border)" }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {variant === "overlay" && (
+        <>
+          <div className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-[1.035]">
+            {visual}
+          </div>
+          <div
+            className="relative z-10 mt-auto flex flex-col gap-2"
+            style={{
+              padding: "clamp(1.4rem, 2.2vw, 2.1rem)",
+              background: "linear-gradient(to top, rgba(6,6,8,0.88) 0%, rgba(6,6,8,0.42) 60%, transparent 100%)",
+            }}
+          >
+            <h4
+              className="font-semibold leading-[1.18] tracking-[-0.015em]"
+              style={{ fontSize: "clamp(1.3rem, 1.9vw, 1.7rem)", fontFamily: "var(--font-display)", color: "#fff" }}
+            >
+              {title}
+            </h4>
+            <p className="text-[0.94rem] leading-[1.6]" style={{ color: "rgba(255,255,255,0.78)" }}>
+              {description}
+            </p>
+            {tags && tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {tags.slice(0, 2).map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.06em]"
+                    style={{ color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-mono)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.16)" }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </CardTag>
+  );
+}
+
+/* ── Progress indicator — "01 ─── 08" style. Shared by both deck variants. ── */
+function DeckProgress({ active, total }: { active: number; total: number }) {
+  return (
+    <div className="flex items-center justify-center gap-3.5" style={{ paddingInline: "clamp(1.5rem, 5vw, 2.5rem)" }}>
+      <span
+        className="tabular-nums"
+        style={{ fontFamily: "var(--font-mono)", fontSize: "12px", letterSpacing: "0.04em", color: "var(--text)", fontWeight: 600 }}
+      >
+        {String(active + 1).padStart(2, "0")}
+      </span>
+      <div className="flex items-center gap-2">
+        {Array.from({ length: total }).map((_, i) => (
+          <span
+            key={i}
+            style={{
+              width: i === active ? 28 : 7,
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: i <= active ? "var(--accent)" : "var(--border)",
+              transition: "width 0.4s cubic-bezier(0.16,1,0.3,1), background-color 0.4s ease",
+            }}
+          />
+        ))}
+      </div>
+      <span className="tabular-nums" style={{ fontFamily: "var(--font-mono)", fontSize: "12px", letterSpacing: "0.04em", color: "var(--text-muted)", opacity: 0.65 }}>
+        {String(total).padStart(2, "0")}
+      </span>
+    </div>
+  );
+}
+
+/* ── Desktop: sticky-pinned track. Vertical wheel/trackpad scroll through the
+ *    tall track drives horizontal translateX on the card row — same proven
+ *    "tall track + sticky viewport + scrollYProgress" mechanism as the
+ *    Product Engineering PinnedDeck above, just consumed as translateX
+ *    instead of a crossfade. Naturally releases into normal vertical
+ *    scrolling once the track's height is exhausted. ─────────────────────── */
+function StickyHorizontalDeck({ cards }: { cards: SupportingCard[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [maxTranslate, setMaxTranslate] = useState(0);
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      if (rowRef.current) {
+        setMaxTranslate(Math.max(0, rowRef.current.scrollWidth - window.innerWidth));
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [cards.length]);
+
+  const { scrollYProgress } = useScroll({ target: trackRef, offset: ["start start", "end end"] });
+  const x = useTransform(scrollYProgress, [0, 1], [0, -maxTranslate]);
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setActive(Math.min(cards.length - 1, Math.max(0, Math.round(v * (cards.length - 1)))));
+  });
+
+  // One full viewport of vertical dwell time per card — same deliberate pacing
+  // convention as the Product Engineering PinnedDeck above (items.length*100vh),
+  // scaled up because these cards are now a full gallery piece, not a tile.
+  return (
+    <div ref={trackRef} className="relative" style={{ height: `${cards.length * 100}vh` }}>
+      <div className="sticky top-0 flex h-screen flex-col justify-center gap-10 overflow-hidden">
+        <motion.div ref={rowRef} className="flex items-stretch gap-6" style={{ x, width: "fit-content", paddingInline: "clamp(1.5rem, 5vw, 2.5rem)" }}>
+          {cards.map((card, i) => (
+            <GalleryCard key={i} content={galleryContentFor(card)} isWide shouldReduce={false} />
+          ))}
+        </motion.div>
+        <DeckProgress active={active} total={cards.length} />
+      </div>
+    </div>
+  );
+}
+
+/* ── Mobile / reduced-motion: native horizontal snap carousel. Touch swipe,
+ *    partial next-card peek (card width < viewport), no scroll-jacking. ──── */
+function MobileCarousel({ cards, shouldReduce }: { cards: SupportingCard[]; shouldReduce: boolean | null }) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const onScroll = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const first = el.children[0] as HTMLElement | undefined;
+    const step = first ? first.offsetWidth + 20 : 1;
+    setActive(Math.round(el.scrollLeft / step));
+  };
+
+  return (
+    <div>
+      <div
+        ref={scrollerRef}
+        onScroll={onScroll}
+        className="flex gap-5 overflow-x-auto [&::-webkit-scrollbar]:hidden"
+        style={{
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
+          paddingInline: "clamp(1.5rem, 5vw, 2.5rem)",
+          paddingBottom: "0.5rem",
+        }}
+      >
+        {cards.map((card, i) => (
+          <div key={i} style={{ scrollSnapAlign: "start" }}>
+            <GalleryCard content={galleryContentFor(card)} isWide={false} shouldReduce={shouldReduce} />
+          </div>
+        ))}
+      </div>
+      <div className="mt-5">
+        <DeckProgress active={active} total={cards.length} />
+      </div>
+    </div>
+  );
+}
+
+function SupportingWorkDeck({
+  cards,
+  isWide,
+  shouldReduce,
+}: {
+  cards: SupportingCard[];
+  isWide: boolean;
+  shouldReduce: boolean | null;
+}) {
+  return isWide && !shouldReduce ? (
+    <StickyHorizontalDeck cards={cards} />
+  ) : (
+    <MobileCarousel cards={cards} shouldReduce={shouldReduce} />
+  );
+}
+
+/* ── "More Work" section header — same visual shape as SectionIntro, kept
+ *    separate since it isn't backed by a WorkCategoryData entry. ─────────── */
+function SupportingSectionHeader({ dotColor }: { dotColor: string }) {
+  return (
+    <div className="mb-8 flex items-baseline gap-3">
+      <span
+        style={{ width: 9, height: 9, borderRadius: "50%", flexShrink: 0, backgroundColor: dotColor, boxShadow: `0 0 0 3px ${dotColor}22` }}
+        aria-hidden="true"
+      />
+      <div>
+        <h3
+          className="font-semibold tracking-[-0.02em]"
+          style={{ fontSize: "clamp(1.4rem, 2.2vw, 1.9rem)", fontFamily: "var(--font-display)", color: "var(--text)" }}
+        >
+          More Work
+        </h3>
+        <p className="mt-1.5 text-sm leading-[1.65]" style={{ color: "var(--text-muted)", maxWidth: "56ch" }}>
+          Publishing, client, and creative work — supporting proof, not the headline.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ── Three top-level layers. Product Engineering is untouched; AR and
+ *    Supporting Work are new. Pills point at these three ids — Publishing
+ *    no longer gets its own top-level destination now that it lives inside
+ *    the Supporting Work deck. ────────────────────────────────────────────── */
+const WORK_LAYERS = [
+  { id: "work-product-engineering", label: "Product Engineering" },
+  { id: "work-ar", label: "AR Experiences" },
+  { id: "work-supporting", label: "More Work" },
+] as const;
+
 export function SelectedWork() {
-  const [activeId, setActiveId] = useState(workCategories[0].id);
   const shouldReduce = useReducedMotion();
 
-  // Creative Works in-view drives the timeline rail's final "Creative" node.
-  const creativeRef = useRef<HTMLDivElement>(null);
-  const creativeInView = useInView(creativeRef, { margin: "-35% 0px -35% 0px" });
+  // Scroll-spy — mirrors the Nav component's own active-section detection so
+  // the pills act as an in-page nav instead of a content filter. All three
+  // layers are always mounted; this only drives pill highlight.
+  const [activeId, setActiveId] = useState<string>(WORK_LAYERS[0].id);
+  const sectionEls = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Wide-only: lets Creative Works tuck up under the pinned deck's trailing void.
+  useEffect(() => {
+    const targets = WORK_LAYERS
+      .map((l) => sectionEls.current[l.id])
+      .filter(Boolean) as HTMLDivElement[];
+    if (targets.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = (entry.target as HTMLElement).dataset.categoryId;
+            if (id) setActiveId(id);
+          }
+        }
+      },
+      { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Wide-only: gates the sticky scroll-jacked deck vs. the mobile carousel.
   const [isWide, setIsWide] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -1343,19 +2008,32 @@ export function SelectedWork() {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  const active = workCategories.find((c) => c.id === activeId)!;
+  const productCategory = workCategories.find((c) => c.id === "product-engineering")!;
+  const arCategory = workCategories.find((c) => c.id === "ar")!;
+  const publishingCategory = workCategories.find((c) => c.id === "publishing")!;
+
+  const ambientTints: Record<string, { glowA: string; glowB: string }> = {
+    "work-product-engineering": productCategory.tint,
+    "work-ar": arCategory.tint,
+    "work-supporting": publishingCategory.tint,
+  };
+  const activeTint = ambientTints[activeId] ?? productCategory.tint;
+
+  const supportingCards: SupportingCard[] = [
+    { kind: "stat" },
+    ...publishingCategory.items.map((item) => ({ kind: "publishing" as const, item })),
+    ...creativeWorks.map((item) => ({ kind: "creative" as const, item })),
+  ];
 
   return (
     <section
       id="work"
       style={{ backgroundColor: "var(--surface)" }}
-      className="relative py-[clamp(4rem,7vw,8rem)]"
+      className="relative overflow-x-clip py-[clamp(4rem,7vw,8rem)]"
     >
       {/* Ambient section atmosphere — a very low-opacity brand glow that takes
-          on the ACTIVE workspace's identity (blue / purple / burgundy) and
-          crossfades when you switch tabs. No clipping here: an overflow on this
-          sticky-deck ancestor would break the pinned timeline, so the glow
-          layer is unclipped + pointer-safe. */}
+          on the active layer's identity and crossfades between them. Hidden
+          behind AR's opaque dark background while that layer is in view. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
         <AnimatePresence initial={false}>
           <motion.div
@@ -1367,9 +2045,9 @@ export function SelectedWork() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             style={{
               background:
-                `radial-gradient(40% 26% at 18% 8%, ${active.tint.glowA} 0%, transparent 70%),` +
-                `radial-gradient(46% 30% at 84% 40%, ${active.tint.glowB} 0%, transparent 70%),` +
-                `radial-gradient(44% 28% at 16% 84%, ${active.tint.glowA} 0%, transparent 70%)`,
+                `radial-gradient(40% 26% at 18% 8%, ${activeTint.glowA} 0%, transparent 70%),` +
+                `radial-gradient(46% 30% at 84% 40%, ${activeTint.glowB} 0%, transparent 70%),` +
+                `radial-gradient(44% 28% at 16% 84%, ${activeTint.glowA} 0%, transparent 70%)`,
             }}
           />
         </AnimatePresence>
@@ -1402,126 +2080,74 @@ export function SelectedWork() {
           </h2>
         </motion.div>
 
-        {/* ── Browser-style workspace switcher ─────────────────────────────
-            A floating window chrome (traffic lights + tab strip) that frames the
-            categories as different "workspaces" rather than a generic segmented
-            control. Active tab = elevated white pill (layoutId morph) with an
-            accent bottom-highlight; inactive = translucent + muted, brighter on
-            hover. Each tab carries its workspace's colored dot. ─────────────── */}
-        <div className="mb-8 -mx-[clamp(1.5rem,5vw,2.5rem)] overflow-x-auto px-[clamp(1.5rem,5vw,2.5rem)]" style={{ WebkitOverflowScrolling: "touch" }}>
-          <div
-            className="inline-flex items-center gap-3 rounded-[14px] border px-3 py-2.5"
-            style={{
-              minWidth: "max-content",
-              backgroundColor: "var(--surface)",
-              borderColor: "var(--border)",
-              boxShadow: "0 1px 2px rgba(10,10,11,0.04), 0 18px 40px -28px rgba(10,10,11,0.3)",
-            }}
-          >
-            {/* traffic lights */}
-            <div className="flex items-center gap-[7px] pl-1" aria-hidden="true">
-              {["#FF5F57", "#FEBC2E", "#28C840"].map((c) => (
-                <span key={c} style={{ width: 11, height: 11, borderRadius: "50%", backgroundColor: c, opacity: 0.9 }} />
-              ))}
-            </div>
-
-            <span className="h-5 w-px" style={{ backgroundColor: "var(--border)" }} aria-hidden="true" />
-
-            {/* tabs */}
-            <div className="flex items-center gap-1.5" role="tablist" aria-label="Work categories">
-              {workCategories.map((cat) => {
-                const isActive = cat.id === activeId;
-                return (
-                  <button
-                    key={cat.id}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => setActiveId(cat.id)}
-                    className="group relative flex items-center gap-2 rounded-[9px] px-3.5 py-2 text-sm transition-colors duration-300"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontWeight: isActive ? 600 : 500,
-                      color: isActive ? "var(--text)" : "var(--text-muted)",
-                      background: isActive ? "transparent" : "rgba(255,255,255,0.5)",
-                      border: "none",
-                      cursor: "pointer",
-                      outline: "none",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.85)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.5)";
-                    }}
-                  >
-                    {isActive && (
-                      <motion.span
-                        layoutId="work-tab-bg"
-                        className="absolute inset-0 rounded-[9px]"
-                        style={{
-                          backgroundColor: "#fff",
-                          boxShadow: "0 1px 2px rgba(10,10,11,0.06), 0 8px 20px -10px rgba(10,10,11,0.25)",
-                        }}
-                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                      />
-                    )}
-                    {isActive && (
-                      <motion.span
-                        layoutId="work-tab-underline"
-                        className="absolute bottom-1 left-1/2 h-[2.5px] -translate-x-1/2 rounded-full"
-                        style={{ width: "55%", backgroundColor: cat.tint.dot }}
-                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                      />
-                    )}
-                    <span
-                      className="relative z-10"
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: "50%",
-                        backgroundColor: cat.tint.dot,
-                        boxShadow: isActive ? `0 0 0 3px ${cat.tint.dot}26` : "none",
-                        opacity: isActive ? 1 : 0.6,
-                        transition: "opacity 0.3s ease, box-shadow 0.3s ease",
-                        flexShrink: 0,
-                      }}
-                      aria-hidden="true"
-                    />
-                    <span className="relative z-10 whitespace-nowrap">{cat.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+        {/* ── 01 — Product Engineering — UNCHANGED, the primary showcase ──── */}
+        <div
+          id="work-product-engineering"
+          data-category-id="work-product-engineering"
+          ref={(el) => { sectionEls.current["work-product-engineering"] = el; }}
+        >
+          <SectionIntro cat={productCategory} />
+          {/* The pinned deck's first card is vertically centered within its own
+              h-screen sticky viewport (locked — see EditorialGrid/PinnedDeck),
+              which on first paint reads as a large gap under the subtitle. This
+              wrapper-only negative margin (no change to the deck itself) pulls
+              it up to a tighter, intentional ~60-100px gap instead. */}
+          <div style={{ marginTop: isWide ? "-6rem" : 0 }}>
+            <EditorialGrid items={productCategory.items} />
           </div>
         </div>
 
-        {/* ── Category description ────────────────────────────────────────── */}
-        <p
-          className="mb-10 text-sm leading-[1.65]"
-          style={{ color: "var(--text-muted)", maxWidth: "52ch" }}
-        >
-          {active.description}
-        </p>
-
-        {/* ── Tab panels ─────────────────────────────────────────────────── */}
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={activeId}
-            initial={shouldReduce ? false : { opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={shouldReduce ? undefined : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {active.gridStyle === "editorial" && <EditorialGrid items={active.items} creativeInView={creativeInView} />}
-            {active.gridStyle === "showcase"  && <ShowcaseGrid  items={active.items} />}
-
-            {/* Creative Works — companion gallery, only under Product Engineering */}
-            {active.id === "product-engineering" && (
-              <CreativeWorks sectionRef={creativeRef} isWide={isWide} />
-            )}
-          </motion.div>
-        </AnimatePresence>
+        {/* Divider — the pinned deck's last card sits vertically centered in
+            its sticky viewport, so the track's own trailing scroll distance
+            leaves empty space below it. This negative margin (same value
+            Creative Works used when it lived directly under the deck) pulls
+            the next layer up into that void instead of leaving a dead gap. */}
+        <div
+          className="h-px"
+          style={{
+            marginTop: isWide ? "calc(21rem - 50vh)" : "clamp(3rem, 6vw, 4.5rem)",
+            marginBottom: "clamp(3.5rem, 6vw, 5.5rem)",
+            backgroundColor: "var(--border)",
+          }}
+          aria-hidden="true"
+        />
       </Container>
+
+      {/* ── 02 — AR / Spatial Experiences — full-bleed dark/yellow layer ─── */}
+      <div
+        id="work-ar"
+        data-category-id="work-ar"
+        ref={(el) => { sectionEls.current["work-ar"] = el; }}
+        style={{ backgroundColor: AR_THEME.bg }}
+        className="relative overflow-hidden py-[clamp(3rem,5vw,4.5rem)]"
+      >
+        <ArDoodles />
+        <Container className="relative z-10">
+          <ArSectionHeader cat={arCategory} />
+          <NdaCard note={arNdaNote} />
+          <ShowcaseGrid items={arCategory.items} theme="dark" />
+        </Container>
+      </div>
+
+      {/* ── 03 — Selected Supporting Work — compact, sticky horizontal deck ── */}
+      <div
+        id="work-supporting"
+        data-category-id="work-supporting"
+        ref={(el) => { sectionEls.current["work-supporting"] = el; }}
+        className="pt-[clamp(3.5rem,6vw,5.5rem)]"
+      >
+        <Container>
+          <SupportingSectionHeader dotColor={publishingCategory.tint.dot} />
+        </Container>
+        {/* The sticky track's row is vertically centered within its own h-screen
+            pinned viewport (locked — see StickyHorizontalDeck), which on first
+            paint reads as a large gap under the subtitle, same issue the PE deck
+            had. This wrapper-only negative margin (no change to the deck itself)
+            pulls it up to a tighter, intentional gap instead. */}
+        <div style={{ marginTop: isWide && !shouldReduce ? "-12rem" : 0 }}>
+          <SupportingWorkDeck cards={supportingCards} isWide={isWide} shouldReduce={shouldReduce} />
+        </div>
+      </div>
       </div>
     </section>
   );
