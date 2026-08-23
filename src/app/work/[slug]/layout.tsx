@@ -6,11 +6,19 @@ import { Container } from "@/components/ui";
  * Provides the back navigation, header padding, and prose container.
  * Content is rendered by page.tsx via MDX.
  */
-export default function CaseStudyLayout({
+export default async function CaseStudyLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
+  // LedgerFlow's case study manages its own full-bleed section layout
+  // (Section/Container per section, alternating widths) — the shared
+  // 720px prose wrapper below is only for the MDX-driven case studies.
+  const fullBleed = slug === "infinity-gst";
+
   return (
     <div style={{ backgroundColor: "var(--bg)" }}>
       {/* ── Back navigation ──────────────────────────────────────────────── */}
@@ -44,14 +52,18 @@ export default function CaseStudyLayout({
       </div>
 
       {/* ── Case study content ───────────────────────────────────────────── */}
-      <Container>
-        <div
-          className="py-[clamp(3rem,8vw,8rem)]"
-          style={{ maxWidth: "720px" }}
-        >
-          {children}
-        </div>
-      </Container>
+      {fullBleed ? (
+        children
+      ) : (
+        <Container>
+          <div
+            className="py-[clamp(3rem,8vw,8rem)]"
+            style={{ maxWidth: "720px" }}
+          >
+            {children}
+          </div>
+        </Container>
+      )}
     </div>
   );
 }

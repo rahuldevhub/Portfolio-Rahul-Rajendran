@@ -427,8 +427,7 @@ function ChapterVisual({
           style={{ backgroundColor: "var(--bg)", border: "1px solid var(--border)", opacity: 0.55 }}
         />
         <div
-          className="relative -rotate-1 overflow-hidden rounded-[var(--radius-lg)] transition-transform duration-700 ease-out group-hover:rotate-0 group-hover:scale-[1.01]"
-          style={{ boxShadow: "0 2px 8px rgba(10,10,11,0.06), 0 26px 64px rgba(10,10,11,0.13)" }}
+          className="relative -rotate-1 overflow-hidden rounded-[var(--radius-lg)] shadow-[0_2px_8px_rgba(10,10,11,0.06),0_26px_64px_rgba(10,10,11,0.13)] transition-[transform,box-shadow] duration-700 ease-out group-hover:rotate-0 group-hover:scale-[1.015] group-hover:shadow-[0_4px_10px_rgba(10,10,11,0.08),0_32px_74px_rgba(10,10,11,0.16)]"
         >
           {item.id === "trackpwd" ? (
             <TrackPwdVisual />
@@ -450,6 +449,163 @@ function ChapterVisual({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+/* ── Teaser card — simplified landing-page card for items that opt in via
+ *    `tagline` (currently LedgerFlow only). The full Problem/Solution/Impact
+ *    breakdown belongs on the case study page, not here — this card's only
+ *    job is to identify the project, give one line of context, and make the
+ *    CTA the obvious next step. Other editorial items are untouched; they
+ *    keep rendering through the original ChapterCard/ChapterCopy path. ──── */
+function TeaserValueProp({
+  tagline,
+  supportingLine,
+}: {
+  tagline: string;
+  supportingLine?: string;
+}) {
+  return (
+    <div className="mt-4" style={{ maxWidth: "40ch" }}>
+      <p
+        className="text-[1.05rem] leading-[1.55] font-medium sm:text-[1.15rem]"
+        style={{ color: "var(--text)", opacity: 0.82, fontFamily: "var(--font-display)" }}
+      >
+        {tagline}
+      </p>
+      {supportingLine && (
+        <p
+          className="mt-2 text-sm leading-[1.6]"
+          style={{ color: "var(--text-muted)" }}
+        >
+          {supportingLine}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function TeaserProofPoints({ points }: { points?: string[] }) {
+  if (!points || points.length === 0) return null;
+  return (
+    <div className="mt-5 flex flex-wrap gap-2">
+      {points.map((p) => (
+        <span
+          key={p}
+          className="rounded-full border px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em]"
+          style={{
+            borderColor: "var(--border)",
+            color: "var(--text)",
+            opacity: 0.68,
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          {p}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ExploreCTA() {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span
+        className="text-[10px] font-semibold uppercase tracking-[0.14em]"
+        style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", opacity: 0.6 }}
+      >
+        Case study
+      </span>
+      <span
+        className="inline-flex w-fit items-center gap-2 text-[0.95rem] font-medium transition-transform duration-300 ease-out group-hover:translate-x-1.5"
+        style={{ color: "var(--text)", fontFamily: "var(--font-display)" }}
+      >
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 14 14"
+          fill="none"
+          aria-hidden="true"
+          className="shrink-0 transition-transform duration-300 ease-out group-hover:translate-x-0.5"
+        >
+          <path
+            d="M2 7h10M8 3l4 4-4 4"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Explore the build
+      </span>
+    </div>
+  );
+}
+
+function TeaserChapterCard({
+  item,
+  index,
+  active,
+  parallax,
+}: {
+  item: SelectedWorkItem;
+  index: number;
+  active: boolean;
+  parallax?: Parallax;
+}) {
+  return (
+    <Link href={`/work/${item.slug}`} className="group block" style={{ textDecoration: "none" }}>
+      <div
+        className="rounded-[clamp(20px,2.2vw,30px)] border p-[clamp(1.75rem,3.6vw,4rem)] transition-[transform,box-shadow] duration-500 ease-out group-hover:-translate-y-1 lg:flex lg:min-h-[80vh] lg:flex-col"
+        style={{
+          backgroundColor: "var(--bg)",
+          borderColor: "var(--border)",
+          boxShadow: "0 1px 2px rgba(10,10,11,0.04), 0 38px 90px -30px rgba(10,10,11,0.24)",
+        }}
+      >
+        <div
+          className="grid flex-1 gap-y-5 gap-x-[clamp(2rem,4vw,4.5rem)] lg:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] lg:grid-rows-[auto_1fr_auto]"
+          style={{
+            transform: active ? "translateY(0)" : "translateY(12px)",
+            opacity: active ? 1 : 0,
+            transition: "transform 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease",
+          }}
+        >
+          <div className="lg:col-start-1 lg:row-start-1">
+            <MetaRow index={index} category={item.category} year={item.year} />
+            <h3
+              className="font-semibold leading-[1.06] tracking-[-0.026em]"
+              style={{
+                fontSize: "clamp(2rem, 3.6vw, 3.1rem)",
+                fontFamily: "var(--font-display)",
+                color: "var(--text)",
+              }}
+            >
+              {item.title}
+            </h3>
+            {item.tagline && (
+              <TeaserValueProp tagline={item.tagline} supportingLine={item.supportingLine} />
+            )}
+            <TeaserProofPoints points={item.proofPoints} />
+          </div>
+
+          <div
+            className="lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:self-center"
+            style={{
+              transform: active ? "translateY(0)" : "translateY(8px)",
+              transition: "transform 0.65s cubic-bezier(0.16,1,0.3,1)",
+              transitionDelay: active ? "0.05s" : "0s",
+            }}
+          >
+            <ChapterVisual item={item} active={active} parallax={parallax} />
+          </div>
+
+          <div className="lg:col-start-1 lg:row-start-3">
+            <ExploreCTA />
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -554,6 +710,9 @@ function ChapterCard({
   active: boolean;
   parallax?: Parallax;
 }) {
+  if (item.tagline) {
+    return <TeaserChapterCard item={item} index={index} active={active} parallax={parallax} />;
+  }
   return (
     <Link href={`/work/${item.slug}`} className="group block" style={{ textDecoration: "none" }}>
       <div

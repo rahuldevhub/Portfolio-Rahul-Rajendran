@@ -7,6 +7,13 @@ interface SectionProps extends HTMLAttributes<HTMLElement> {
   size?: "sm" | "default" | "lg" | "none";
   /** Background fill variant. Default: "default". */
   bg?: "default" | "surface" | "none";
+  /**
+   * Opt out of the default `overflow-hidden`. Needed for any section using
+   * `position: sticky` internally — a clipping ancestor prevents sticky from
+   * engaging against the real viewport at all. Default: false (unchanged
+   * behavior for every existing section).
+   */
+  overflowVisible?: boolean;
 }
 
 // Vertical rhythm reduced ~18% from the original scale — sections felt
@@ -32,13 +39,14 @@ export function Section({
   as: Tag = "section",
   size = "default",
   bg = "default",
+  overflowVisible = false,
   className = "",
   children,
   ...props
 }: SectionProps) {
   return (
     <Tag
-      className={[paddingMap[size], bgMap[bg], "relative overflow-hidden", className]
+      className={[paddingMap[size], bgMap[bg], overflowVisible ? "relative" : "relative overflow-hidden", className]
         .filter(Boolean)
         .join(" ")}
       {...props}

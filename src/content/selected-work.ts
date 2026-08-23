@@ -45,6 +45,13 @@ export interface SelectedWorkItem {
   artifacts?: string[];
   /** Ambient identity colors — drives the soft glow behind the chapter visual */
   accent?: { glowA: string; glowB: string };
+  /** One-line value proposition shown on the landing-page teaser card (replaces the
+   *  Problem/Solution/Impact block for cards that opt into the simplified teaser layout). */
+  tagline?: string;
+  /** Short second line under the tagline — the "why" in one sentence. */
+  supportingLine?: string;
+  /** Compact proof-point chips (e.g. "5 Documents", "GST-ready") for the teaser layout. */
+  proofPoints?: string[];
 }
 
 export interface WorkCategoryData {
@@ -190,6 +197,9 @@ export const workCategories: WorkCategoryData[] = [
           { label: "GSTR-1 / 3B", value: "GST-ready" },
           { label: "Brands",      value: "2" },         // Ritera Publishing · Ratix Info Tech
         ],
+        tagline: "A business operating system connecting invoices, payments, expenses and GST in one flow.",
+        supportingLine: "Built to turn a fragmented financial workflow into one connected system.",
+        proofPoints: ["5 Documents", "GST-ready", "2 Brands"],
         artifacts: ["GST-ready", "Auto filing", "Quotation", "Tax invoice", "Cash flow"],
         accent: { glowA: "rgba(70,130,255,0.18)", glowB: "rgba(0,200,150,0.13)" },
       },

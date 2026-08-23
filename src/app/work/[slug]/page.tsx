@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { work } from "@/content/work";
 import { workCategories, type SelectedWorkItem } from "@/content/selected-work";
+import { LedgerFlowCaseStudy } from "@/components/case-study/ledgerflow/LedgerFlow";
+import { ledgerflowHero } from "@/content/work/ledgerflow";
 
 /**
  * Case study page.
@@ -27,7 +29,6 @@ type CaseStudyModule = {
 };
 
 const modules: Record<string, () => Promise<CaseStudyModule>> = {
-  "infinity-gst": () => import("@/content/work/infinity-gst.mdx"),
   "author-dashboard": () => import("@/content/work/author-dashboard.mdx"),
   trackpwd: () => import("@/content/work/trackpwd.mdx"),
 };
@@ -54,6 +55,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  if (slug === "infinity-gst") {
+    return {
+      title: `${ledgerflowHero.title} — Rahul Rajendran`,
+      description: ledgerflowHero.description,
+    };
+  }
   const loader = modules[slug];
   if (loader) {
     const mod = await loader();
@@ -117,6 +124,11 @@ export default async function CaseStudyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  if (slug === "infinity-gst") {
+    return <LedgerFlowCaseStudy />;
+  }
+
   const loader = modules[slug];
 
   if (!loader) {
